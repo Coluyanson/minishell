@@ -25,9 +25,12 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
+# include <sys/ioctl.h>
 # include <dirent.h>
 # include <unistd.h>
+# include <signal.h>
 
+extern int chek;
 //int g_status;
 
 typedef struct s_sh
@@ -132,5 +135,12 @@ char	**ft_gest_ambiental(char **av, char **envp);
 
 /*vik ft*/
 char	**ft_gest_ambiental(char **av, char **envp);
+
+/* ft_signals.c */
+
+void	ft_gest_sig_bash(int sig);
+void	ft_sigint(int sig);
+
+
 
 #endif

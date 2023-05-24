@@ -33,6 +33,8 @@ void	ft_path_finder(t_node *node, t_sh *shell)
 	int		x;
 
 	x = 0;
+	if(!(node->cmds))
+		return;
 	if (ft_strchr(node->cmds, '/'))
 	{
 		if (!access(node->cmds, F_OK | X_OK))
