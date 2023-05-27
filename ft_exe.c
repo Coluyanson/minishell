@@ -43,6 +43,8 @@ void	ft_path_finder(t_node *node, t_sh *shell)
 			printf("%s : no such file or directory\n", node->cmds);
 		return ;
 	}
+	if(ft_builtins(node, shell))
+		return ;
 	cmd = ft_strjoin("/", node->cmds);
 	env_PATH = ft_split(getenv("PATH"), ':');
 	while (env_PATH[x])

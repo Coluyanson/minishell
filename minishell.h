@@ -31,6 +31,7 @@
 # include <signal.h>
 
 extern int chek;
+/* dovviamno salvarci chek in una variabile statica */
 //int g_status;
 
 typedef struct s_sh
@@ -121,6 +122,11 @@ char	**ft_add_to_split(char **spl, char *str);
 char	**ft_join_split(char **spl1, char **spl2);
 char	**ft_subsplit(char **split, int x, int y);
 
+/*utils3.c*/
+
+int		ft_check_export(char *str, char *env);
+char 	*ft_truncate_eq(char *str);
+
 /*utils_print.c*/
 
 void	print_arrarr(char **arr);
@@ -141,6 +147,8 @@ char	**ft_gest_ambiental(char **av, char **envp);
 void	ft_gest_sig_bash(int sig);
 void	ft_sigint(int sig);
 
+/* ft_builtins.c */
 
+int	ft_builtins(t_node *node, t_sh *sh);
 
 #endif

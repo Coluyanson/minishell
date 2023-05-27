@@ -23,7 +23,8 @@ int	main(int ac, char **av, char **envp)
 
 	(void)ac;
 	(void)av;
-	shell.envp = envp;
+	shell.envp = copy_arrarr(envp);
+	//print_arrarr(shell.envp);
 	sig = 0;
 	ft_gest_sig_bash(sig);
 	while (1)
@@ -31,7 +32,7 @@ int	main(int ac, char **av, char **envp)
 		input = readline("\033[34mminishell>\033[0m");
 		if(!input)
 			break ;
-		fin = final_split(input, envp);
+		fin = final_split(input, shell.envp);
 		if (fin != NULL)
 			ft_exe(*(ft_create_cmds(fin)), &shell);
 		free_arrarr(fin);
