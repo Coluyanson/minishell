@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 19:57:26 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 14:09:31 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 17:50:59 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,7 @@ void	ft_exe(t_sh *shell, t_list *cmd)
 	pid_t	pid;
 	t_node	*node;
 	int		**fd;
+	int		*pipe_fd;
 	int		i;
 	char	*full_cmd;
 	int		status;
@@ -133,6 +134,7 @@ void	ft_exe(t_sh *shell, t_list *cmd)
 	
 	size = ft_lstsize(cmd);
 	i = 0;
+	fd = 0;
 	if (!cmd)
 		return ;
 	if (size > 1)
@@ -175,7 +177,11 @@ void	ft_exe(t_sh *shell, t_list *cmd)
 		}
 		else
 		{
-			if (!ft_builtins(node, shell, fd[i], cmd))
+			if (fd == 0)
+				pipe_fd = 0;
+			else
+				pipe_fd = fd[i];
+			if (!ft_builtins(node, shell, pipe_fd, cmd))
 			{
 				full_cmd = ft_cmd_finder(node, shell);
 				if (!full_cmd && (!ft_in(node) && !ft_out(node)))
@@ -214,12 +220,15 @@ void	ft_exe(t_sh *shell, t_list *cmd)
 		i++;
 	}
 	i = 0;
-	while (i < size - 1)
+	if (size > 1)
 	{
-		close(fd[i][1]);
-		close(fd[i][0]);
-		free(fd[i++]);
+		while (i < size - 1)
+		{
+			close(fd[i][1]);
+			close(fd[i][0]);
+			free(fd[i++]);
+		}
+		free(fd);
 	}
-	free(fd);
 	ft_reset_redirection(shell);
 }
