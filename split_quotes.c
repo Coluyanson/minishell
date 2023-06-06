@@ -6,11 +6,13 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/02 18:38:52 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/05/18 19:32:00 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/05 15:53:54 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+extern int g_status;
 
 /*
 It finds next index after the first quote. 
@@ -26,12 +28,12 @@ int	ft_next_index_quote(char *s, int i)
 	while (s[i])
 	{
 		if (in_set(s[i], set))
-		{
+		{	
 			q = s[i++];
 			while (s[i] && s[i] != q)
 				i++;
 			if (!s[i])
-				ft_quit("\033[31;5;107mError : unmatched quotes\n", -1);
+				return (-1);
 			else
 				i++;
 		}
@@ -118,10 +120,25 @@ char	**split_quotes(char *s)
 {
 	char	**split;
 	int		strings;
-
+	int		i;
+	
+	i = 0;
 	split = 0;
 	if (!s)
 		return (0);
+	while (s[i])
+	{
+		i = ft_next_index_quote(s, i);
+		if (i == -1)
+		{
+			g_status = 2;
+			ft_putstr_fd("\033[31;5;107mError : unmatched quotes\n\033[0m", STDERR_FILENO);
+			return (0);
+		}
+		if (!s[i])
+			break;
+		i++;
+	}
 	strings = count_strings(s);
 	if (strings == 0)
 		return (0);

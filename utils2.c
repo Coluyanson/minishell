@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/14 21:01:11 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/05/18 19:32:15 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 14:35:01 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ char	**ft_join_split(char **cmd, char **line_spl)
 	i = 0;
 	j = 0;
 	if (!cmd)
-		return (line_spl);
+		return (copy_arrarr(line_spl));
 	while (cmd[i])
 		i++;
 	while (line_spl[j])
@@ -67,8 +67,8 @@ char	**ft_join_split(char **cmd, char **line_spl)
 	while (line_spl[i])
 		join[j++] = ft_strdup(line_spl[i++]);
 	join[j] = 0;
-	free_arrarr(cmd);
-	free_arrarr(line_spl);
+	//free_arrarr(cmd);
+	//free_arrarr(line_spl);
 	return (join);
 }
 
@@ -87,9 +87,9 @@ char	**ft_add_to_split(char **spl, char *str)
 		return (join);
 	}
 	if (!str)
-		return (spl);
+		return (copy_arrarr(spl));
 	len = ft_splitlen(spl);
-	join = (char **) malloc (sizeof(char *) * (len + 1));
+	join = (char **) malloc (sizeof(char *) * (len + 2));
 	while (spl[x])
 	{
 		join[x] = ft_strdup(spl[x]);
@@ -106,7 +106,7 @@ char	**ft_subsplit(char **split, int i, int j)
 	int		k;
 
 	k = 0;
-	if (!split)
+	if (!split || i == j)
 		return (0);
 	sub = (char **) malloc (sizeof(char *) * (j - i + 1));
 	while (i < j && split[i])

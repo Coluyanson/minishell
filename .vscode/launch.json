@@ -5,7 +5,7 @@
 		"name": "C Debug with GDB",
 		"type": "cppdbg",
 		"request": "launch",
-		"program": "${workspaceFolder}/minishell_test",
+		"program": "${workspaceFolder}/minishell",
 		"args": [],
 		"stopAtEntry": false,
 		"cwd": "${workspaceFolder}",

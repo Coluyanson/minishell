@@ -1,33 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_main_execve.c                                   :+:      :+:    :+:   */
+/*   utils_cmd.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/05/21 16:41:19 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/05/21 17:37:13 by dcolucci         ###   ########.fr       */
+/*   Created: 2023/05/26 15:07:32 by dcolucci          #+#    #+#             */
+/*   Updated: 2023/05/26 18:55:06 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	main(int ac, char **av, char **envp)
+int	ft_in(t_node *node)
 {
-	pid_t	pid;
+	if (node->infile != STDIN_FILENO)
+		return (1);
+	return (0);
+}
 
-	pid = fork();
-	if (pid == 0)
-	{
-		execve("./minishell_test", av, envp);
-	}
-	else if (pid)
-	{
-		waitpid(pid, 0, 0);
-	}
-	else if (pid < 0)
-	{
-		ft_quit("error", -1);
-	}
+int	ft_out(t_node *node)
+{
+	if (node->outfile != STDOUT_FILENO)
+		return (1);
 	return (0);
 }

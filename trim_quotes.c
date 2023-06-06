@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/07 19:04:53 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/05/18 19:28:15 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 14:32:52 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,14 +76,30 @@ char	*delete_quotes(char *s)
 		It returns the same address of exp but the strings are modified.
 */
 
+char	*ft_safe_quotes(char *cmd)
+{
+	if (ft_strlen(cmd) == 3 && in_set(cmd[0], "\'\""))
+	{
+		if (in_set(cmd[1], "<>|"))
+			cmd[1] = -cmd[1];
+	}
+	return (cmd);
+}
+
 char	**trim_quotes(char **cmd)
 {
-	int	i;
+	int		i;
+	char	*tmp;
 
 	i = -1;
 	if (!cmd)
 		return (0);
 	while (cmd[++i])
+	{
+		cmd[i] = ft_safe_quotes(cmd[i]);
+		tmp = cmd[i];
 		cmd[i] = delete_quotes(cmd[i]);
+		free(tmp);
+	}
 	return (cmd);
 }

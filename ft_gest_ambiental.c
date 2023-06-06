@@ -6,13 +6,15 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 10:13:45 by vguidoni          #+#    #+#             */
-/*   Updated: 2023/05/12 20:04:50 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 17:10:32 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	*ft_sub_dollar(char *av, char *envp, int i, int k)
+extern int g_status;
+
+ char	*ft_sub_dollar(char *av, char *envp, int i, int k)
 {
 	char	*ex;
 	char	*tmp;
@@ -51,50 +53,121 @@ char	*ft_rm_exp(char *av, int i, int k)
 	return (join);
 }
 
-char	*ft_av(char **envp, char *av, int i, int *flag)
+char	*ft_dollar(char **envp, char *to_exp)
 {
-	int		k;
-	int		x;
 	char	*separator;
-
-	separator = "<>\\/|+-.,;:~{}[]()&%%\"^'#@?*$ ";
-	x = 0;
-	k = i + 1;
-	while (!ft_strchr(separator, av[k]) && av[k] != '\0')
-		k++;
-	while (envp[x])
-	{
-		if (!compare_env(envp[x], &av[i + 1], k, i))
-		{
-			av = ft_sub_dollar(av, envp[x], i, k);
-			*flag = 1;
-		}
-		x++;
-	}
-	if (*flag == 0)
-		av = ft_rm_exp(av, i, k);
-	return (av);
-}
-
-char	*ft_expander(char *av, char **envp)
-{
+	char	*var;
+	char	*value;
+	char	*itoa;
+	char	*tmp_to_exp;
 	int		i;
-	int		flag;
+	int		j;
 
 	i = 0;
-	flag = 0;
-	while (av[i])
+	j = 0;
+	separator = "<>\\/|+-.,;:~{}[]()&%%\"^'#@*$= ";
+	while (to_exp[i])
 	{
-		if (av[i] == '$')
+		if (to_exp[i] == '$')
 		{
-			av = ft_av(envp, av, i, &flag);
-			if (flag == 0)
-				i--;
+			if (!ft_strchr(separator, to_exp[i + 1]))
+				j = i + 1;
+			else
+				j = i;
+			while (!ft_strchr(separator, to_exp[j]) && to_exp[j])
+				j++;
+			if (to_exp[i + 1] == '?')
+			{
+				itoa = ft_itoa(g_status);
+				to_exp = ft_substitute_string(to_exp, itoa, i, 2);
+				free(itoa);
+				free(tmp_to_exp);
+			}
+			else
+			{
+				var = (char *) malloc (sizeof (char) * (j - i + 1));
+				ft_strlcpy(var, &to_exp[i + 1], (j - i));
+				value = ft_getenv(var, envp);
+				tmp_to_exp = to_exp;
+				to_exp = ft_substitute_string(to_exp, value, i, j - i);
+				free(tmp_to_exp);
+				ft_safe_free(value);
+				ft_safe_free(var);
+			}
+			if (!to_exp[j])
+				break ;
+			i = j + 1;
 		}
-		i++;
+		else
+			i++;
 	}
-	return (av);
+	return (to_exp);
 }
+
+int		ft_next_quote_exp(char *s, int i)
+{
+	char	q;
+
+	q = 0;
+	if (in_set(s[i], "\'\""))
+	{
+		q = s[i++];
+		while (s[i] && s[i] != q)
+			i++;
+	}
+	else
+	{
+		while (s[i] && !in_set(s[i], "\'\""))
+			i++;
+		if (in_set(s[i], "\'\""))
+			i--;
+	}
+	return (i);
+}
+
+char	*ft_expander(char *exp, char **envp)
+{
+	char	*join;
+	char	*tmp_join;
+	char	*tmp;
+	char	*expanded;
+	int 	x;
+	int 	k;
+
+	x = 0;
+	join = 0;
+	while (exp[x])
+	{
+		k = ft_next_quote_exp(exp, x);
+		if (exp[x] == '\'')
+		{
+			tmp = (char *) malloc (sizeof(char) * (k - x + 2));
+			ft_strlcpy(tmp, &exp[x], (k - x + 2));
+			tmp_join = join;
+			join = ft_strjoin_null(join, tmp);
+			ft_safe_free(tmp);
+			ft_safe_free(tmp_join);
+		}
+		else
+		{
+			tmp = (char *) malloc (sizeof(char) * (k - x + 2));
+			ft_strlcpy(tmp, &exp[x], (k - x + 2));
+			expanded = ft_dollar(envp, tmp);
+			tmp_join = join;
+			join = ft_strjoin_null(join, expanded);
+			//ft_safe_free(tmp);
+			ft_safe_free(expanded);
+			ft_safe_free(tmp_join);
+		}
+		x = k + 1;
+		if (!exp[k])
+			break ;
+		if (!exp[k + 1])
+			break ;
+	}
+	return (join);
+}
+
 
 /*
 	Description:
@@ -102,26 +175,26 @@ char	*ft_expander(char *av, char **envp)
 		of av starting with double quotes (") or not starting with single quotes
 		(');
 	Return value:
-		It returns a double char pointer with the $variable replaced 
+		It returns a double char pointer with the $variable replaced
 		by its corresponding environment variable.
 		If no variable is found the $xxx character (not in separators set) 
 		are removed from the string.
 */
 
-char	**ft_gest_ambiental(char **av, char **envp)
+char	**ft_gest_ambiental(char **spl, char **envp)
 {
-	int	x;
+	int		x;
+	char	*tmp;
 
 	x = 0;
-	if (av == NULL)
+	if (spl == NULL)
 		return (NULL);
-	while (av[x])
+	while (spl[x])
 	{
-		if (av[x][0] == '\"' || av[x][0] != '\'')
-		{
-			av[x] = ft_expander(av[x], envp);
-		}
+		tmp = spl[x];
+		spl[x] = ft_expander(spl[x], envp);
+		free(tmp);
 		x++;
 	}
-	return (av);
+	return (spl);
 }

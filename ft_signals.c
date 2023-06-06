@@ -1,4 +1,5 @@
 #include "minishell.h"
+extern int g_status;
 /*	0) ctrl +D
 	1) ctrl +\
 	2) ctrl +C
@@ -22,20 +23,24 @@
 		2 = interrompe la scrittura e va a capo(sotto specifiche)*/
 void	ft_sigint(int sig)
 {
-		chek = 0;
-		if(sig == SIGINT)
-		{
-			ioctl(STDIN_FILENO, TIOCSTI, "\n");
-			chek = 1;
-			rl_replace_line("", 0);
-			rl_on_new_line();
-		}
+	if(sig == SIGINT)
+	{
+		g_status = 130;
+		ioctl(STDIN_FILENO, TIOCSTI, "\n");
+		rl_on_new_line();
+		rl_replace_line("", 0);
+	}
 }
 
-void	ft_gest_sig_bash(int sig)
+void	ft_close(int sig)
 {
-	//struct sigaction
+	(void)sig;
+	printf("oi\n");
+	exit(0);
+}
+
+void	ft_gest_sig_bash(void)
+{
 	signal(SIGINT, ft_sigint);
 	signal(SIGQUIT, SIG_IGN);
-	sig = sig;
 }

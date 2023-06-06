@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 18:39:55 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/05/22 15:04:00 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 12:18:36 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,16 +29,13 @@
 # include <dirent.h>
 # include <unistd.h>
 # include <signal.h>
-
-extern int chek;
-/* dovviamno salvarci chek in una variabile statica */
-//int g_status;
-
 typedef struct s_sh
 {
-	t_list	*cmds;
+	t_list	**cmds;
 	char	**envp;
 	pid_t	pid;
+	int		stdin_fd;
+	int		stdout_fd;
 }t_sh;
 
 typedef struct s_node
@@ -46,16 +43,14 @@ typedef struct s_node
 	char	**full_cmd;
 	char	*cmds;
 	int		infile;
+	char	*str_infile;
 	int		outfile;
+	char	*str_outfile;
 }t_node;
-
-/*ft_quit.c*/
-
-void	ft_quit(char *error, int quit);
 
 /*ft_check_syntax.c */
 
-void	ft_check_syntax(char **sub_cmd);
+int		ft_check_syntax(char **sub_cmd);
 int		ft_count_redirection(char **sub_cmd, char redir);
 
 /*split_command.c*/
@@ -75,14 +70,19 @@ t_list	**ft_create_cmds(char **full_cmds);
 
 /* ft_crate_node.c */
 
-int		ft_infile(char **sub_cmd);
-int		ft_outfile(char **sub_cmd);
+int		ft_infile(char **sub_cmd, t_node *node);
+int		ft_outfile(char **sub_cmd, t_node *node);
 char	*ft_cmd(char **sub_cmd);
 char	**ft_full_cmd(char **sub_cmd);
 
+/*ft_builtins.c*/
+
+int		ft_builtins(t_node *node, t_sh *sh, int *fd, t_list *cmd);
+
 /* ft_exe.c */
 
-void	ft_exe(t_list *cmds, t_sh *shell);
+//void	ft_exe(t_list *cmds, t_sh *shell);
+void	ft_exe(t_sh *shell, t_list *cmd);
 
 /*ft_gest_ambiental.c*/
 
@@ -105,14 +105,18 @@ char	**trim_quotes(char **exp);
 
 char	**final_split(char *input, char **envp);
 
+/*utils_cmd.c*/
+
+int		ft_out(t_node *node);
+int		ft_in(t_node *node);
+
 /*utils1.c*/
 
 int		in_set(char c, char *s);
 char	*find_next_char(char *str, char *set, int i);
 char	**copy_arrarr(char **arr);
 int		compare_env(char *env, char *av, int k, int i);
-int	ft_max(int i, int j);
-
+int		ft_max(int i, int j);
 
 /*utils2.c*/
 
@@ -124,8 +128,11 @@ char	**ft_subsplit(char **split, int x, int y);
 
 /*utils3.c*/
 
-int		ft_check_export(char *str, char *env);
-char 	*ft_truncate_eq(char *str);
+char	*ft_truncate_eq(char *str);
+void	ft_setenv(t_sh *shell, char *var, char *value);
+char	*ft_strjoin_null(char *s1, char *s2);
+char	*ft_substitute_string(char *str, char *str_in, int index, int size);
+char	*ft_getenv(char *var, char **envp);
 
 /*utils_print.c*/
 
@@ -135,20 +142,18 @@ void	print_node(t_node *node, char **sub_spl);
 /*utils1_free.c*/
 
 void	free_arrarr(char **mat);
-
-/*vik ft*/
-char	**ft_gest_ambiental(char **av, char **envp);
+void	ft_free_shell(t_sh *shell);
+void	ft_free_node(t_node *node);
+void	ft_free_list(t_list *lst);
+void	ft_safe_free(void *p);
 
 /*vik ft*/
 char	**ft_gest_ambiental(char **av, char **envp);
 
 /* ft_signals.c */
 
-void	ft_gest_sig_bash(int sig);
+void	ft_gest_sig_bash(void);
 void	ft_sigint(int sig);
 
-/* ft_builtins.c */
-
-int	ft_builtins(t_node *node, t_sh *sh);
 
 #endif

@@ -6,13 +6,12 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/02 19:08:44 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/05/22 15:33:26 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 12:06:57 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-int	chek;
+int g_status;
 
 int	main(int ac, char **av, char **envp)
 {
@@ -23,20 +22,29 @@ int	main(int ac, char **av, char **envp)
 
 	(void)ac;
 	(void)av;
+	shell.stdin_fd = dup(STDIN_FILENO);
+	shell.stdout_fd = dup(STDOUT_FILENO);
 	shell.envp = copy_arrarr(envp);
-	//print_arrarr(shell.envp);
-	sig = 0;
-	ft_gest_sig_bash(sig);
+	ft_gest_sig_bash();
+	(void)fin;
+	printf("%d\n", getpid());
 	while (1)
 	{
 		input = readline("\033[34mminishell>\033[0m");
-		if(!input)
+		if (!input)
 			break ;
-		fin = final_split(input, shell.envp);
-		if (fin != NULL)
-			ft_exe(*(ft_create_cmds(fin)), &shell);
-		free_arrarr(fin);
-		add_history(input);
+		if (ft_strlen(input))
+		{
+			fin = final_split(input, shell.envp);
+			shell.cmds = ft_create_cmds(fin);
+			if (shell.cmds)
+			{
+				ft_exe(&shell, *(shell.cmds));
+				free_arrarr(fin);
+				ft_free_list(*(shell.cmds));
+				free(shell.cmds);
+			}
+			add_history(input);
+		}
 	}
-	printf("\033[6;31mexit💀\n\033[0m");
 }

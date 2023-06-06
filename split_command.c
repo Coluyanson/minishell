@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/07 20:12:34 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/05/18 19:31:59 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 12:56:50 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,8 @@ char	**split_cmd(char **exp)
 {
 	char	**split_cmd;
 	char	**line_spl;
+	char	**tmp;
+	char	**tmp_spl;
 	int		x;
 
 	x = 0;
@@ -128,9 +130,13 @@ char	**split_cmd(char **exp)
 		line_spl = nano_split_cmd(exp[x]);
 		if (!line_spl)
 			return (0);
+		tmp = line_spl;
+		tmp_spl = split_cmd;
 		split_cmd = ft_join_split(split_cmd, line_spl);
+		free_arrarr(tmp);
+		free_arrarr(tmp_spl);
 		x++;
 	}
-	free(exp);
+	free_arrarr(exp);
 	return (split_cmd);
 }

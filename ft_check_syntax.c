@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 14:56:10 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/05/18 19:31:19 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/05 12:47:32 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int	ft_count_redirection(char **sub_cmd, char redir)
 	return (count);
 }
 
-void	ft_check_syntax(char **sub_cmd)
+int	ft_check_syntax(char **sub_cmd)
 {
 	int		x;
 	int		count;
@@ -43,18 +43,22 @@ void	ft_check_syntax(char **sub_cmd)
 	count = 0;
 	error = "\033[31mSytax error using < and >\n\033[0m";
 	if (!sub_cmd)
-		return ;
+		return (0);
 	while (sub_cmd[x])
 	{
 		if (in_set(sub_cmd[x][0], "<>") && ft_strlen(sub_cmd[x]) == 1)
 		{
 			count = ft_count_redirection(&sub_cmd[x + 1], sub_cmd[x][0]);
 			if (count > 2 || !sub_cmd[x + 1])
-				ft_quit(error, -1);
+			{
+				ft_putstr_fd(error, STDERR_FILENO);
+				return (-1);
+			}
 			else
 				x = x + count;
 		}
 		else
 			x++;
 	}
+	return (0);
 }

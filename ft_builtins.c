@@ -1,192 +1,176 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_builtins.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/05/27 17:18:16 by dcolucci          #+#    #+#             */
+/*   Updated: 2023/06/06 11:10:42 by dcolucci         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void	ft_echo(t_node *node)
+extern int g_status;
+
+int	ft_echo(t_node *node)
 {
 	int x;
 	int flag;
 
 	flag = 0;
 	x = 1;
+	if (node->full_cmd[1])
+	{
+		if (!(ft_strncmp(node->full_cmd[1], "-n", 3)))
+		{
+			flag = 1;
+			x++;
+		}
+	}
 	while(node->full_cmd[x])
 	{
-		//printf("%s\n", node->full_cmd[x]);
-		if(!(ft_strncmp(node->full_cmd[x], "-n", ft_strlen(node->full_cmd[x]))))
-			flag = 1;
+		if (node->full_cmd[x + 1])
+		{
+			ft_putstr_fd(node->full_cmd[x++], STDOUT_FILENO);
+			ft_putstr_fd(" ", STDOUT_FILENO);
+		}	//printf("%s ", node->full_cmd[x++]);
+		else
+			ft_putstr_fd(node->full_cmd[x++], STDOUT_FILENO);
+			//printf("%s", node->full_cmd[x++]);
+		}
+	if(flag == 0)
+		ft_putstr_fd("\n", STDOUT_FILENO);
+	g_status = 0;
+	return (1);
+}
+
+int	ft_pwd(void)
+{
+	char *tmp;
+
+	tmp = getcwd(0, 0);
+	printf("%s\n", tmp);
+	free(tmp);
+	g_status = 0;
+	return (1);
+}
+
+int	ft_env(t_sh *sh, t_node *node)
+{
+	int	x;
+
+	x = 0;
+	if (node->full_cmd)
+	{
+		if (node->full_cmd[1])
+		{
+			if (node->full_cmd[2])
+			{
+				printf("minishell: env: too many arguments\n");
+				g_status = 1;
+				return (1);
+			}
+		}
+	}
+	while (sh->envp[x])
+		printf("%s\n", sh->envp[x++]);
+	g_status = 0;
+	return (1);
+}
+
+
+int	ft_cd(t_node *node, t_sh *shell)
+{
+	char	*old_pwd;
+	char	*pwd;
+
+	old_pwd = getcwd(0, 0);
+	if (node->full_cmd[1] == NULL)
+	{
+		chdir(getenv("HOME"));
+		pwd = getcwd(0, 0);
+		ft_setenv(shell, "OLDPWD", old_pwd);
+		ft_setenv(shell, "PWD", pwd);
+		free(pwd);
+	}
+	else if (node->full_cmd[1] != NULL)
+	{	
+		if (node->full_cmd[2])
+		{
+			printf("minishell: cd: too many arguments\n");
+			g_status = 1;
+			return (1);
+		}
+		if (chdir(node->full_cmd[1]) == -1)
+		{	
+			printf("minishell: cd: %s :No such file or directory\n", \
+				node->full_cmd[1]);
+			g_status = 1;
+			return (1);
+		}
 		else
 		{
-			printf("%s---\n", node->full_cmd[x]);
-			//flag = 0;
+			pwd = getcwd(0, 0);
+			ft_setenv(shell, "OLDPWD", old_pwd);
+			ft_setenv(shell, "PWD", pwd);
+			free(pwd);
 		}
-		x++;
 	}
-	if(flag == 0)
-		printf("\n");
+	free(old_pwd);
+	g_status = 0;
+	return (1);
 }
 
-void	ft_pwd(t_node *node)
-{
-	int x;
-
-	x = 0;
-	
-	node->full_cmd[x] = getcwd(NULL, 0);
-	getcwd(node->full_cmd[x], sizeof(node->full_cmd[x]));
-	printf("%s----\n", node->full_cmd[x]);
-}
-
-void	ft_env(t_sh *sh)
-{
-	int x;
-
-	x = 0;
-	while(sh->envp[x])
-	{
-		//printf("\033[32m%s\033[0m\n", sh->envp[x]);
-		if(!(ft_strncmp(sh->envp[x], "EXPORT", 6)))
-			printf("expot\n");
-		x++;
-	}
-
-
-}
-
-void	ft_check_cd(char *node)
-{
-	int x;
-	int flag;
-
-	flag = 0;
-	x = 0;
-	while (node[x])
-	{
-		if (node[x] == '.')
-		{
-			if (node[x + 1] == '.')
-			{
-				if (node[x + 2] == '.')
-				{
-					flag = 1;
-					break;
-				}
-			}
-			x++;	
-		}
-		else 
-			x++;
-	}
-	if(flag == 1)
-		printf("\033[31mci hai provato troglodita\033[0m\n");
-}
-
-void	ft_cd(t_node *node)
-{
-	int x;
-	int y;
-
-	x  = 0;
-	y = 0;
-	if(node->full_cmd == NULL)
-		return ;
-	while(node->full_cmd[x])
-	{
-		if(node->full_cmd[1] == NULL)
-		{
-			access(node->full_cmd[x], R_OK);
-			chdir(getenv("HOME"));
-		}
-		else if (node->full_cmd[1] != NULL)
-		{
-
-			if(node->full_cmd[1][y] == '.')
-			{
-				ft_check_cd(node->full_cmd[1]);
-				chdir(node->full_cmd[x]);
-			}
-			else if (node->full_cmd[x][y] == '/')
-				y++;
-			else if(access(node->full_cmd[x], R_OK) == 0)
-				chdir(node->full_cmd[x]);
-			y++;
-		}
-		else	
-			return ;
-		x++;
-	}
-	ft_pwd(node);
-}
-
-void	ft_export(t_node *node, t_sh *sh)
+int	ft_export(t_node *node, t_sh *sh)
 {
 	int		x;
-	char	**tmp;
-	char	*tmp2;
-	char	*trun;
-	char	*trun_env;
+	int		y;
+	char	*var;
+	char	*value;
 
 	x = 0;
-	while(sh->envp[x] != NULL && !node->full_cmd[1] )
+	y = 1;
+	if (!node->full_cmd[1])
 	{
-		printf("declare -x ");
-		printf("%s\n", sh->envp[x]);
-		x++;
+		while (sh->envp[x])
+			printf("%s\n", sh->envp[x++]);
+		g_status = 0;
+		return (1);
 	}
-	x = 0;
-	if(node->full_cmd[1])
+	while (node->full_cmd[y])
 	{
-		if(!(ft_strchr(node->full_cmd[1], '=')))
+		if (ft_strchr(node->full_cmd[y], '='))
 		{
-			while(sh->envp[x] != NULL)
-			{
-				if(!(ft_strncmp(node->full_cmd[1],sh->envp[x],ft_strlen(node->full_cmd[1]))))
-					return ;
-				x++;
-			}
-			tmp = sh->envp;
-			sh->envp = ft_add_to_split(sh->envp, node->full_cmd[1]);
-			free(tmp);
+			var = ft_truncate_eq(node->full_cmd[y]);
+			value = ft_strdup(ft_strchr(node->full_cmd[y], '=') + 1);
+			ft_setenv(sh, var, value);
 		}
 		else
-		{
-			trun = ft_truncate_eq(node->full_cmd[1]);
-			while(sh->envp[x] != NULL)
-			{
-				trun_env = ft_truncate_eq(sh->envp[x]);
-				if(!(ft_strncmp(trun, trun_env, ft_max(ft_strlen(trun), ft_strlen(trun_env)))))
-				{
-					tmp2 = sh->envp[x];
-					sh->envp[x] = ft_strdup(node->full_cmd[1]);
-					free(tmp2);
-					return ;
-				}
-				x++;
-			}
-			if (sh->envp[x] == NULL)
-			{
-				tmp = sh->envp;
-				sh->envp = ft_add_to_split(sh->envp, node->full_cmd[1]);
-				free(tmp);
-			}
-		}
+			ft_setenv(sh, node->full_cmd[y], 0);
+		y++;
 	}
+	return (1);
 }
 
-void	ft_unset(t_node *node, t_sh *sh)
+int	ft_unset(t_node *node, t_sh *sh)
 {
 	char	*trun_env;
 	int		x;
 	char	**s1;
 	char	**s2;
-	char	**tmp;
 
 	if (!node->full_cmd[1])
 	{
-		printf("\033[31munset : not enough arguments\033\n");
-		return ;
+		g_status = 0;
+		return (1);
 	}
 	else if (ft_strchr(node->full_cmd[1], '='))
 	{
 		printf("\033[31munset : %s : invalid parameter name\033\n", node->full_cmd[1]);
-		return ;
+		g_status = 1;
+		return (1);
 	}
 	else
 	{
@@ -195,40 +179,48 @@ void	ft_unset(t_node *node, t_sh *sh)
 			trun_env = ft_truncate_eq(sh->envp[x]);
 			if (!ft_strncmp(node->full_cmd[1], trun_env, ft_max(ft_strlen(node->full_cmd[1]), ft_strlen(trun_env))))
 			{
-				tmp = sh->envp;
 				s1 = ft_subsplit(sh->envp, 0, x);
 				s2 = ft_subsplit(sh->envp, x + 1, INT_MAX);
 				sh->envp = ft_join_split(s1, s2);
-				free(tmp);
-				return ;
+				return (1);
 			}
 			x++;
 		}	
-	}	
+	}
+	g_status = 0;
+	return (1);
 }
 
-int	ft_builtins(t_node *node, t_sh *sh)
+int	ft_builtins(t_node *node, t_sh *sh, int *fd, t_list *cmd)
 {
 	int x;
+	int	builtin;
 
 	x = 0;
+	builtin = 0;
+	if (!node->cmds || !node->full_cmd)
+		return (0);
 	if(node->full_cmd[x])
 	{
-
 		if (!(ft_strncmp(node->full_cmd[x], "echo", ft_max(ft_strlen(node->full_cmd[x]), ft_strlen("echo")))))
-			ft_echo(node);
+			builtin = (ft_echo(node));
 		else if (!(ft_strncmp(node->full_cmd[x], "pwd", ft_max(ft_strlen(node->full_cmd[x]), ft_strlen("pwd")))))
-			ft_pwd(node);
+			builtin = (ft_pwd());
 		else if (!(ft_strncmp(node->full_cmd[x], "exit", ft_max(ft_strlen(node->full_cmd[x]), ft_strlen("exit")))))
+		{
+			ft_free_shell(sh);
 			exit(0);
+		}
 		else if (!(ft_strncmp(node->full_cmd[x], "env", ft_max(ft_strlen(node->full_cmd[x]), ft_strlen("env")))))
-			ft_env(sh);
+			builtin = (ft_env(sh, node));
 		else if (!(ft_strncmp(node->full_cmd[x], "cd", ft_max(ft_strlen(node->full_cmd[x]), ft_strlen("cd")))))
-			ft_cd(node);
+			builtin = (ft_cd(node, sh));
 		else if (!(ft_strncmp(node->full_cmd[x], "export", ft_max(ft_strlen(node->full_cmd[x]), ft_strlen("export")))))
-			ft_export(node, sh);
+			builtin = (ft_export(node, sh));
 		else if (!(ft_strncmp(node->full_cmd[x], "unset", ft_max(ft_strlen(node->full_cmd[x]), ft_strlen("unset")))))
-			ft_unset(node, sh);
+			builtin = (ft_unset(node, sh));
 	}
-	return(0);
+	if (cmd->next)
+		close(fd[1]);
+	return(builtin);
 }
