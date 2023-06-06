@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/14 21:01:11 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 14:35:01 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 19:28:13 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,12 @@ char	**ft_join_split(char **cmd, char **line_spl)
 
 	i = 0;
 	j = 0;
-	if (!cmd)
+	if (!cmd && !line_spl)
+		return (0);
+	if (!cmd && line_spl)
 		return (copy_arrarr(line_spl));
+	if (cmd && !line_spl)
+		return (copy_arrarr(cmd));
 	while (cmd[i])
 		i++;
 	while (line_spl[j])

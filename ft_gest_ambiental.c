@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 10:13:45 by vguidoni          #+#    #+#             */
-/*   Updated: 2023/06/06 17:10:32 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 21:15:59 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ char	*ft_rm_exp(char *av, int i, int k)
 	return (join);
 }
 
-char	*ft_dollar(char **envp, char *to_exp)
+char	*ft_dollar1(char **envp, char *to_exp)
 {
 	char	*separator;
 	char	*var;
@@ -79,9 +79,10 @@ char	*ft_dollar(char **envp, char *to_exp)
 			if (to_exp[i + 1] == '?')
 			{
 				itoa = ft_itoa(g_status);
+				tmp_to_exp = to_exp;
 				to_exp = ft_substitute_string(to_exp, itoa, i, 2);
+				ft_safe_free(tmp_to_exp);
 				free(itoa);
-				free(tmp_to_exp);
 			}
 			else
 			{
@@ -90,7 +91,7 @@ char	*ft_dollar(char **envp, char *to_exp)
 				value = ft_getenv(var, envp);
 				tmp_to_exp = to_exp;
 				to_exp = ft_substitute_string(to_exp, value, i, j - i);
-				free(tmp_to_exp);
+				ft_safe_free(tmp_to_exp);
 				ft_safe_free(value);
 				ft_safe_free(var);
 			}
@@ -102,6 +103,64 @@ char	*ft_dollar(char **envp, char *to_exp)
 			i++;
 	}
 	return (to_exp);
+}
+
+ char	*ft_dollar(char *dol, char *separator, char **envp, int *index)
+{
+	int		i;
+	int		j;
+	char	*var;
+	char	*value;
+
+	i = *index;
+	j = 0;
+	if (!dol)
+		return (0);
+	while (dol[i + j] && !in_set(dol[i + j], separator))
+		j++;
+	if (j == 0 && dol[i + j] == '?')
+		return (ft_itoa(g_status));
+	else if (j == 0)
+		return (ft_strdup("$"));
+	var = (char *) malloc (sizeof(char) * (j - i + 1));
+	ft_strlcpy(var, &dol[i], j - i + 1);
+	value = ft_getenv(var, envp);
+	free(var);
+	*index = *index + j;
+	return (value);
+}
+
+char	*ft_expand(char **envp, char *to_exp)
+{
+	int		i;
+	int		j;
+	char	*expanded;
+	char	*tmp;
+	char	*dollar;
+	char	*separator;
+
+	i = 0;
+	j = 0;
+	separator = "<>\\/|+-.,;:~{}[]()&%%\"^'#@*$= ";
+	while (to_exp[i])
+	{
+		if (to_exp[i] == '$')
+		{
+			i = i + 1;
+			dollar = ft_dollar(to_exp, separator, envp, &i);
+			expanded = ft_strjoin_null(expanded, dollar);
+			ft_safe_free(dollar);
+		}
+		else
+		{
+			while (to_exp[i + j] && !in_set(to_exp[i + j], separator))
+				j++;
+			tmp = (char *) malloc (sizeof(char) * j - i + 1);
+			ft_strlcpy(tmp, &to_exp[i], j - i + 1);
+			expanded = ft_strjoin_null(expanded, tmp);
+		}
+	}
+	return (expanded);
 }
 
 int		ft_next_quote_exp(char *s, int i)
@@ -152,10 +211,9 @@ char	*ft_expander(char *exp, char **envp)
 		{
 			tmp = (char *) malloc (sizeof(char) * (k - x + 2));
 			ft_strlcpy(tmp, &exp[x], (k - x + 2));
-			expanded = ft_dollar(envp, tmp);
+			expanded = ft_expand(envp, tmp);
 			tmp_join = join;
 			join = ft_strjoin_null(join, expanded);
-			//ft_safe_free(tmp);
 			ft_safe_free(expanded);
 			ft_safe_free(tmp_join);
 		}

@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:05:42 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/02 19:00:03 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 19:15:17 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ char	*ft_truncate_eq(char *str)
 	if (!str)
 		return (0);
 	if (!ft_strchr(str, '='))
-		return (str);
+		return (ft_strdup(str));
 	x = 0;
 	while (str[x] && str[x] != '=')
 		x++;
@@ -92,6 +92,8 @@ void	ft_setenv(t_sh *shell, char *var, char *value)
 	char	*trun_env;
 	char	*tmp_join;
 	char	*join;
+	char	*tmp_env;
+	char	**tmp;
 
 	x = 0;
 	if (!shell->envp || !var)
@@ -106,10 +108,15 @@ void	ft_setenv(t_sh *shell, char *var, char *value)
 			{
 				tmp_join = ft_strjoin(var, "=");
 				join = ft_strjoin(tmp_join, value);
+				free(tmp_join);
+				tmp_env = shell->envp[x];
 				shell->envp[x] = join;
+				free(tmp_env);
+				free(trun_env);
 			}
 			break ;
 		}
+		free(trun_env);
 		x++;
 	}
 	if (!shell->envp[x])
@@ -118,10 +125,15 @@ void	ft_setenv(t_sh *shell, char *var, char *value)
 		{
 			tmp_join = ft_strjoin(var, "=");
 			join = ft_strjoin(tmp_join, value);
+			free(tmp_join);
 		}
 		else
 			join = var;
+		tmp = shell->envp;
 		shell->envp = ft_add_to_split(shell->envp, join);
+		if (value)
+			free(join);
+		free_arrarr(tmp);
 	}
 }
 

@@ -23,3 +23,12 @@
    ...
    fun:add_history
 }
+
+{
+   readline
+   Memcheck:Leak
+   ...
+   ...
+   fun:readline_internal_teardown
+   fun:readline
+}

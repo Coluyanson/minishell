@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 18:39:55 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 12:18:36 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 18:26:40 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # include <signal.h>
 typedef struct s_sh
 {
+	char	**final_split;
 	t_list	**cmds;
 	char	**envp;
 	pid_t	pid;

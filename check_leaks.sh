@@ -1,3 +1,3 @@
-!/bin/bash
+#!/bin/bash
 
-valgrind --leak-check=full --suppressions=./readline.supp ./minishell
+valgrind --leak-check=full --show-leak-kinds=all --suppressions=./readline.supp ./minishell

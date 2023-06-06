@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/02 19:08:44 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 12:06:57 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 18:27:12 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,12 @@ int	main(int ac, char **av, char **envp)
 			break ;
 		if (ft_strlen(input))
 		{
-			fin = final_split(input, shell.envp);
-			shell.cmds = ft_create_cmds(fin);
+			shell.final_split = final_split(input, shell.envp);
+			shell.cmds = ft_create_cmds(shell.final_split);
 			if (shell.cmds)
 			{
 				ft_exe(&shell, *(shell.cmds));
-				free_arrarr(fin);
+				free_arrarr(shell.final_split);
 				ft_free_list(*(shell.cmds));
 				free(shell.cmds);
 			}

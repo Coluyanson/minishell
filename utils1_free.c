@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 15:41:44 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 16:34:55 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 18:29:21 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,10 @@ void	ft_free_list(t_list *lst)
 
 void	ft_free_shell(t_sh *shell)
 {
+	free_arrarr(shell->final_split);
 	free_arrarr(shell->envp);
 	ft_free_list(*(shell->cmds));
+	free(shell->cmds);
 }
 
 void	ft_safe_free(void *p)

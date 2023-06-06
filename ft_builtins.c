@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/27 17:18:16 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 11:10:42 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/06 19:32:42 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,15 +85,18 @@ int	ft_cd(t_node *node, t_sh *shell)
 {
 	char	*old_pwd;
 	char	*pwd;
+	char	*env;
 
 	old_pwd = getcwd(0, 0);
 	if (node->full_cmd[1] == NULL)
 	{
-		chdir(getenv("HOME"));
+		env = ft_getenv("HOME", shell->envp);
+		chdir(env);
 		pwd = getcwd(0, 0);
 		ft_setenv(shell, "OLDPWD", old_pwd);
 		ft_setenv(shell, "PWD", pwd);
 		free(pwd);
+		free(env);
 	}
 	else if (node->full_cmd[1] != NULL)
 	{	
@@ -146,9 +149,12 @@ int	ft_export(t_node *node, t_sh *sh)
 			var = ft_truncate_eq(node->full_cmd[y]);
 			value = ft_strdup(ft_strchr(node->full_cmd[y], '=') + 1);
 			ft_setenv(sh, var, value);
+			ft_safe_free(var);
+			ft_safe_free(value);
 		}
 		else
 			ft_setenv(sh, node->full_cmd[y], 0);
+		
 		y++;
 	}
 	return (1);
@@ -160,7 +166,9 @@ int	ft_unset(t_node *node, t_sh *sh)
 	int		x;
 	char	**s1;
 	char	**s2;
+	char	**tmp_sh;
 
+	x = 0;
 	if (!node->full_cmd[1])
 	{
 		g_status = 0;
@@ -180,10 +188,16 @@ int	ft_unset(t_node *node, t_sh *sh)
 			if (!ft_strncmp(node->full_cmd[1], trun_env, ft_max(ft_strlen(node->full_cmd[1]), ft_strlen(trun_env))))
 			{
 				s1 = ft_subsplit(sh->envp, 0, x);
-				s2 = ft_subsplit(sh->envp, x + 1, INT_MAX);
+				s2 = ft_subsplit(sh->envp, x + 1, ft_splitlen(sh->envp));
+				tmp_sh = sh->envp;
 				sh->envp = ft_join_split(s1, s2);
+				free_arrarr(tmp_sh);
+				free_arrarr(s1);
+				free_arrarr(s2);
+				ft_safe_free(trun_env);
 				return (1);
 			}
+			ft_safe_free(trun_env);
 			x++;
 		}	
 	}
