@@ -1,4 +1,4 @@
-1)->  "><|"
+1)Gestire $PWD o directory quando vengono prese come comando
 2)Gestire stringhe nulle nel comando : esempio quando una variabile d'ambiente non esiste
 3)Exit status
 4)
