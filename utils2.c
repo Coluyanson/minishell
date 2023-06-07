@@ -67,8 +67,6 @@ char	**ft_join_split(char **cmd, char **line_spl)
 	while (line_spl[i])
 		join[j++] = ft_strdup(line_spl[i++]);
 	join[j] = 0;
-	//free_arrarr(cmd);
-	//free_arrarr(line_spl);
 	return (join);
 }
 

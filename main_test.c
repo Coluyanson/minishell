@@ -18,7 +18,6 @@ int	main(int ac, char **av, char **envp)
 	char	*input;
 	char	**fin;
 	t_sh	shell;
-	int sig;
 
 	(void)ac;
 	(void)av;

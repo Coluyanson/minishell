@@ -24,7 +24,7 @@ char	**copy_arrarr(char **arr)
 		i++;
 	if (i == 0)
 		return (0);
-	cpy = malloc(sizeof(char **) * (i + 1));
+	cpy = (char **) calloc(sizeof(char *) , (i + 1));
 	i = 0;
 	while (arr[i])
 	{

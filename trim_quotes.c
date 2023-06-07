@@ -12,10 +12,10 @@
 
 #include "minishell.h"
 
-int	ft_next_index_trim(char *s, int i)
+int ft_next_index_trim(char *s, int i)
 {
-	char	q;
-	char	*set;
+	char q;
+	char *set;
 
 	set = "\'\"";
 	while (s[i])
@@ -29,17 +29,17 @@ int	ft_next_index_trim(char *s, int i)
 			return (i);
 		}
 		else
-			break ;
+			break;
 	}
 	return (i);
 }
 
-char	*delete_quotes(char *s)
+char *delete_quotes(char *s)
 {
-	int		j;
-	int		k;
-	char	*tmp;
-	char	*join;
+	int j;
+	int k;
+	char *tmp;
+	char *join;
 
 	j = 0;
 	k = 0;
@@ -69,14 +69,14 @@ char	*delete_quotes(char *s)
 }
 /*
 	Description:
-		The function trim_quotes modify every string of 
+		The function trim_quotes modify every string of
 		double char pointer exp trimming the quotes at the start
 		and at the end of the string.
 	Return value:
 		It returns the same address of exp but the strings are modified.
 */
 
-char	*ft_safe_quotes(char *cmd)
+char *ft_safe_quotes(char *cmd)
 {
 	if (ft_strlen(cmd) == 3 && in_set(cmd[0], "\'\""))
 	{
@@ -86,10 +86,10 @@ char	*ft_safe_quotes(char *cmd)
 	return (cmd);
 }
 
-char	**trim_quotes(char **cmd)
+char **trim_quotes(char **cmd)
 {
-	int		i;
-	char	*tmp;
+	int i;
+	char *tmp;
 
 	i = -1;
 	if (!cmd)
