@@ -78,7 +78,7 @@ char	**ft_full_cmd(char **sub_cmd);
 
 /*ft_builtins.c*/
 
-int		ft_builtins(t_node *node, t_sh *sh, int *fd, t_list *cmd);
+int		ft_builtins(t_list *cmd, t_sh *sh, int **fd, int i);
 
 /* ft_exe.c */
 

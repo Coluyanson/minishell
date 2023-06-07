@@ -205,11 +205,13 @@ int	ft_unset(t_node *node, t_sh *sh)
 	return (1);
 }
 
-int	ft_builtins(t_node *node, t_sh *sh, int *fd, t_list *cmd)
+int	ft_builtins(t_list *cmd, t_sh *sh, int **fd, int i)
 {
 	int x;
 	int	builtin;
+	t_node	*node;
 
+	node = (t_node *)(cmd->content);
 	x = 0;
 	builtin = 0;
 	if (!node->cmds || !node->full_cmd)
@@ -235,6 +237,6 @@ int	ft_builtins(t_node *node, t_sh *sh, int *fd, t_list *cmd)
 			builtin = (ft_unset(node, sh));
 	}
 	if (cmd->next)
-		close(fd[1]);
+		close(fd[i][1]);
 	return(builtin);
 }

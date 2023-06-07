@@ -126,7 +126,6 @@ void	ft_exe(t_sh *shell, t_list *cmd)
 	pid_t	pid;
 	t_node	*node;
 	int		**fd;
-	int		*pipe_fd;
 	int		i;
 	char	*full_cmd;
 	int		status;
@@ -177,11 +176,7 @@ void	ft_exe(t_sh *shell, t_list *cmd)
 		}
 		else
 		{
-			if (fd == 0)
-				pipe_fd = 0;
-			else
-				pipe_fd = fd[i];
-			if (!ft_builtins(node, shell, pipe_fd, cmd))
+			if (!ft_builtins(cmd, shell, fd, i))
 			{
 				full_cmd = ft_cmd_finder(node, shell);
 				if (!full_cmd && (!ft_in(node) && !ft_out(node)))
