@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/21 16:23:36 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/05 12:20:14 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/07 18:23:38 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,15 @@ int	ft_heredoc(char *delimiter)
 		inp_heredoc = readline("\033[33m🤟🍀🤟>\033[0m");
 		if (!inp_heredoc)
 		{
-			printf("bash: warning: here-document delimited by end-of-file (wanted `%s')\n", delimiter);
+			printf("bash: warning: here-document delimited by\
+			end-of-file (wanted `%s')\n", delimiter);
 			break ;
 		}
 		if (g_status == 130)
+		{
+			
 			break ;
+		}
 		if (!ft_strncmp(inp_heredoc, delimiter, \
 		ft_max(ft_strlen(inp_heredoc), ft_strlen(delimiter))))
 			break ;

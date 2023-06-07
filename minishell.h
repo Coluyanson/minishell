@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 18:39:55 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 18:26:40 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/07 17:48:08 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include "libft/libft.h"
 # include "gnl/get_next_line_bonus.h"
 
+# include <dirent.h>
 # include <fcntl.h>
 # include <limits.h>
 # include <stdio.h>
@@ -67,7 +68,7 @@ char	**split_quotes(char *s);
 
 /*ft_create_cmds.c*/
 
-t_list	**ft_create_cmds(char **full_cmds);
+t_list	**ft_create_cmds(char **full_cmds, t_sh *shell);
 
 /* ft_crate_node.c */
 

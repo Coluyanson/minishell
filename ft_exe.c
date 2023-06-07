@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 19:57:26 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 17:50:59 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/07 18:10:08 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ char	*ft_cmd_finder(t_node *node, t_sh *shell)
 	char	**env_PATH;
 	char	*full_cmd;
 	int		x;
+	DIR		*dir;
 
 	(void)shell;
 	x = 0;
@@ -28,11 +29,28 @@ char	*ft_cmd_finder(t_node *node, t_sh *shell)
 	if (ft_strchr(node->cmds, '/'))
 	{
 		if (!access(node->cmds, F_OK | X_OK))
-			return (node->cmds);
+		{
+			dir = opendir(node->cmds);
+			if (dir)
+			{
+				ft_putstr_fd("\033[31mminishell: ", STDERR_FILENO);
+				ft_putstr_fd(node->cmds, STDERR_FILENO);
+				ft_putstr_fd(": Is a directory\n\033", STDERR_FILENO);
+				g_status = 126;
+				free(dir);
+				return (0);
+			}
+			else
+			{
+				return (ft_strdup(node->cmds));
+			}
+		}
 		else
 		{
-			printf("%s : no such file or directory\n", node->cmds);
-			g_status = 126;
+			ft_putstr_fd("\033[31mminishell: ", STDERR_FILENO);
+			ft_putstr_fd(node->cmds, STDERR_FILENO);
+			ft_putstr_fd(": No such file o directory\n\033", STDERR_FILENO);
+			g_status = 127;
 			return (0);
 		}
 	}
@@ -179,16 +197,20 @@ void	ft_exe(t_sh *shell, t_list *cmd)
 			if (!ft_builtins(cmd, shell, fd, i))
 			{
 				full_cmd = ft_cmd_finder(node, shell);
-				if (!full_cmd && (!ft_in(node) && !ft_out(node)))
+				/* if (!full_cmd && (!ft_in(node) && !ft_out(node)))
 					{
 						g_status = 2;
 						ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", shell->stdout_fd);
 						break ;
-					}
+					} */
+				if (!full_cmd)
+					break ;
 				pid = fork();
 				if (pid == 0)
 				{
 					execve(full_cmd, node->full_cmd, shell->envp);
+					//for (int i = 0; i < 10; i++)
+						//printf("OIIIIIIIIIIIII\n");
 					exit(0);
 				}
 				else
