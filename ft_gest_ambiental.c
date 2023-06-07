@@ -122,8 +122,8 @@ char	*ft_dollar1(char **envp, char *to_exp)
 		return (ft_itoa(g_status));
 	else if (j == 0)
 		return (ft_strdup("$"));
-	var = (char *) malloc (sizeof(char) * (j - i + 1));
-	ft_strlcpy(var, &dol[i], j - i + 1);
+	var = (char *) malloc (sizeof(char) * (j + 1));
+	ft_strlcpy(var, &dol[i], j + 1);
 	value = ft_getenv(var, envp);
 	free(var);
 	*index = *index + j;
@@ -135,12 +135,14 @@ char	*ft_expand(char **envp, char *to_exp)
 	int		i;
 	int		j;
 	char	*expanded;
+	char	*tmp_exp;
 	char	*tmp;
 	char	*dollar;
 	char	*separator;
 
 	i = 0;
 	j = 0;
+	expanded = 0;
 	separator = "<>\\/|+-.,;:~{}[]()&%%\"^'#@*$= ";
 	while (to_exp[i])
 	{
@@ -148,16 +150,22 @@ char	*ft_expand(char **envp, char *to_exp)
 		{
 			i = i + 1;
 			dollar = ft_dollar(to_exp, separator, envp, &i);
+			tmp_exp = expanded;
 			expanded = ft_strjoin_null(expanded, dollar);
 			ft_safe_free(dollar);
+			ft_safe_free(tmp_exp);
 		}
 		else
 		{
-			while (to_exp[i + j] && !in_set(to_exp[i + j], separator))
+			while (to_exp[i + j] && to_exp[i + j] != '$')
 				j++;
 			tmp = (char *) malloc (sizeof(char) * j - i + 1);
 			ft_strlcpy(tmp, &to_exp[i], j - i + 1);
+			tmp_exp = expanded;
 			expanded = ft_strjoin_null(expanded, tmp);
+			ft_safe_free(tmp);
+			ft_safe_free(tmp_exp);
+			i = i + j;
 		}
 	}
 	return (expanded);
@@ -214,6 +222,7 @@ char	*ft_expander(char *exp, char **envp)
 			expanded = ft_expand(envp, tmp);
 			tmp_join = join;
 			join = ft_strjoin_null(join, expanded);
+			ft_safe_free(tmp);
 			ft_safe_free(expanded);
 			ft_safe_free(tmp_join);
 		}
