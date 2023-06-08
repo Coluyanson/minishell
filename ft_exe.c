@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 19:57:26 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/07 18:10:08 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/08 15:03:57 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,16 @@ char	*ft_cmd_finder(t_node *node, t_sh *shell)
 		return (0);
 	if (ft_strchr(node->cmds, '/'))
 	{
-		if (!access(node->cmds, F_OK | X_OK))
+		if (!access(node->cmds, F_OK))
 		{
+			if (access(node->cmds, X_OK))
+			{
+				ft_putstr_fd("\033[31mminishell: ", STDERR_FILENO);
+				ft_putstr_fd(node->cmds, STDERR_FILENO);
+				ft_putstr_fd(": Permission denied\n\033", STDERR_FILENO);
+				g_status = 126;
+				return (0);
+			}
 			dir = opendir(node->cmds);
 			if (dir)
 			{
@@ -209,8 +217,6 @@ void	ft_exe(t_sh *shell, t_list *cmd)
 				if (pid == 0)
 				{
 					execve(full_cmd, node->full_cmd, shell->envp);
-					//for (int i = 0; i < 10; i++)
-						//printf("OIIIIIIIIIIIII\n");
 					exit(0);
 				}
 				else

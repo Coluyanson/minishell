@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 19:25:46 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/07 18:25:50 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/08 14:51:38 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,14 @@ t_list	*ft_new_cmd(char **sub_spl)
 	if (ft_check_syntax(sub_spl) == -1)
 		return (0);
 	node = (t_node *) malloc (sizeof(t_node));
+	if (!sub_spl)
+	{
+		g_status = 2;
+		ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", \
+		STDERR_FILENO);
+		free(node);
+		return (0);
+	}
 	node->infile = ft_infile(sub_spl, node);
 	if (g_status == 130)
 	{
@@ -61,6 +69,8 @@ t_list	**ft_create_cmds(char **final, t_sh *shell)
 			if (!node)
 			{
 				free_arrarr(sub_split);
+				if (cmd_lst)
+					ft_free_list(*cmd_lst);
 				ft_safe_free(cmd_lst);
 				return (0);
 			}
@@ -76,6 +86,8 @@ t_list	**ft_create_cmds(char **final, t_sh *shell)
 		if (!node)
 		{
 			free_arrarr(sub_split);
+			if (cmd_lst)
+				ft_free_list(*cmd_lst);
 			ft_safe_free(cmd_lst);
 			return (0);
 		}

@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/02 19:08:44 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/07 18:47:49 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/08 15:44:15 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,12 @@ int	main(int ac, char **av, char **envp)
 	{
 		prompt = ft_create_prompt(shell);
 		input = readline(prompt);
+		ft_safe_free(prompt);
 		if (!input)
 		{
 			ft_putstr_fd("\033[32mexit\033[0m \033👨‍💻", shell.stdout_fd);
 			ft_putchar_fd('\n', shell.stdout_fd);
 			ft_free_shell(&shell);
-			free(prompt);
 			break ;
 		}
 		if (ft_strlen(input))
@@ -77,9 +77,7 @@ int	main(int ac, char **av, char **envp)
 			}
 			free_arrarr(shell.final_split);
 			shell.final_split = 0;
-			ft_safe_free(prompt);
 			add_history(input);
 		}
 	}
-	unlink("heredoc");
 }

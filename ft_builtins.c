@@ -6,41 +6,38 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/27 17:18:16 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 19:32:42 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/08 16:20:57 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-extern int g_status;
+extern int	g_status;
 
 int	ft_echo(t_node *node)
 {
-	int x;
-	int flag;
+	int	x;
+	int	flag;
 
 	flag = 0;
 	x = 1;
-	if (node->full_cmd[1])
+
+	while (node->full_cmd[x])
 	{
-		if (!(ft_strncmp(node->full_cmd[1], "-n", 3)))
+		if (x == 1 && (!(ft_strncmp(node->full_cmd[x], "-n", 3))))
 		{
 			flag = 1;
 			x++;
 		}
-	}
-	while(node->full_cmd[x])
-	{
-		if (node->full_cmd[x + 1])
+		else if (node->full_cmd[x + 1])
 		{
 			ft_putstr_fd(node->full_cmd[x++], STDOUT_FILENO);
 			ft_putstr_fd(" ", STDOUT_FILENO);
-		}	//printf("%s ", node->full_cmd[x++]);
+		}
 		else
 			ft_putstr_fd(node->full_cmd[x++], STDOUT_FILENO);
-			//printf("%s", node->full_cmd[x++]);
-		}
-	if(flag == 0)
+	}
+	if (flag == 0)
 		ft_putstr_fd("\n", STDOUT_FILENO);
 	g_status = 0;
 	return (1);
@@ -48,7 +45,7 @@ int	ft_echo(t_node *node)
 
 int	ft_pwd(void)
 {
-	char *tmp;
+	char	*tmp;
 
 	tmp = getcwd(0, 0);
 	printf("%s\n", tmp);
@@ -68,60 +65,62 @@ int	ft_env(t_sh *sh, t_node *node)
 		{
 			if (node->full_cmd[2])
 			{
-				printf("minishell: env: too many arguments\n");
+				ft_putstr_fd("minishell: env: too many arguments\n", \
+				STDERR_FILENO);
 				g_status = 1;
 				return (1);
 			}
 		}
 	}
 	while (sh->envp[x])
-		printf("%s\n", sh->envp[x++]);
+	{
+		ft_putstr_fd(sh->envp[x++], STDOUT_FILENO);
+		ft_putstr_fd("\n", STDOUT_FILENO);
+	}
 	g_status = 0;
 	return (1);
 }
 
-
-int	ft_cd(t_node *node, t_sh *shell)
+void	ft_change_path(char *path, char **envp)
 {
-	char	*old_pwd;
 	char	*pwd;
-	char	*env;
+	char	*old_pwd;
 
 	old_pwd = getcwd(0, 0);
-	if (node->full_cmd[1] == NULL)
+	if (chdir(path) == -1)
+	{	
+		printf("minishell: cd: %s :No such file or directory\n", \
+			path);
+		g_status = 1;
+	}
+	else
 	{
-		env = ft_getenv("HOME", shell->envp);
-		chdir(env);
 		pwd = getcwd(0, 0);
 		ft_setenv(shell, "OLDPWD", old_pwd);
 		ft_setenv(shell, "PWD", pwd);
-		free(pwd);
+	}
+	free(pwd);
+	free(old_pwd);
+}
+
+int	ft_cd(t_node *node, t_sh *shell)
+{
+	char	*env;
+
+	if (node->full_cmd[2])
+	{
+		printf("minishell: cd: too many arguments\n");
+		g_status = 1;
+		return (1);
+	}
+	if (node->full_cmd[1] == NULL)
+	{
+		env = ft_getenv("HOME", shell->envp);
+		ft_change_path(env, shell->envp);
 		free(env);
 	}
-	else if (node->full_cmd[1] != NULL)
-	{	
-		if (node->full_cmd[2])
-		{
-			printf("minishell: cd: too many arguments\n");
-			g_status = 1;
-			return (1);
-		}
-		if (chdir(node->full_cmd[1]) == -1)
-		{	
-			printf("minishell: cd: %s :No such file or directory\n", \
-				node->full_cmd[1]);
-			g_status = 1;
-			return (1);
-		}
-		else
-		{
-			pwd = getcwd(0, 0);
-			ft_setenv(shell, "OLDPWD", old_pwd);
-			ft_setenv(shell, "PWD", pwd);
-			free(pwd);
-		}
-	}
-	free(old_pwd);
+	else
+		ft_change_path(node->full_cmd[1], shell->envp);
 	g_status = 0;
 	return (1);
 }
@@ -154,7 +153,6 @@ int	ft_export(t_node *node, t_sh *sh)
 		}
 		else
 			ft_setenv(sh, node->full_cmd[y], 0);
-		
 		y++;
 	}
 	return (1);

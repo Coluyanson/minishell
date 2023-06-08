@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 15:41:44 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/07 16:12:30 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/08 15:44:05 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ void	ft_free_shell(t_sh *shell)
 	}
 	ft_safe_free(shell->cmds);
 	shell->cmds = 0;
+	unlink("heredoc");
 }
 
 void	ft_safe_free(void *p)

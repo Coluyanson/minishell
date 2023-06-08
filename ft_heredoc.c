@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/21 16:23:36 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/07 18:23:38 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/08 14:34:54 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,7 @@ int	ft_heredoc(char *delimiter)
 			break ;
 		}
 		if (g_status == 130)
-		{
-			
 			break ;
-		}
 		if (!ft_strncmp(inp_heredoc, delimiter, \
 		ft_max(ft_strlen(inp_heredoc), ft_strlen(delimiter))))
 			break ;
