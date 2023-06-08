@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/27 17:18:16 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/08 16:20:57 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/08 17:45:12 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,17 +81,21 @@ int	ft_env(t_sh *sh, t_node *node)
 	return (1);
 }
 
-void	ft_change_path(char *path, char **envp)
+void	ft_change_path(char *path, t_sh *shell)
 {
 	char	*pwd;
 	char	*old_pwd;
 
+	pwd = 0;
 	old_pwd = getcwd(0, 0);
 	if (chdir(path) == -1)
 	{	
 		printf("minishell: cd: %s :No such file or directory\n", \
 			path);
+		ft_safe_free(pwd);
+		ft_safe_free(old_pwd);
 		g_status = 1;
+		return ;
 	}
 	else
 	{
@@ -99,72 +103,105 @@ void	ft_change_path(char *path, char **envp)
 		ft_setenv(shell, "OLDPWD", old_pwd);
 		ft_setenv(shell, "PWD", pwd);
 	}
-	free(pwd);
-	free(old_pwd);
+	ft_safe_free(pwd);
+	ft_safe_free(old_pwd);
+	g_status = 0;
+	return ;
 }
 
 int	ft_cd(t_node *node, t_sh *shell)
 {
 	char	*env;
 
-	if (node->full_cmd[2])
+	if (node->full_cmd[1])
 	{
-		printf("minishell: cd: too many arguments\n");
-		g_status = 1;
-		return (1);
+		if (node->full_cmd[2])
+		{
+			printf("minishell: cd: too many arguments\n");
+			g_status = 1;
+			return (1);
+		}
 	}
 	if (node->full_cmd[1] == NULL)
 	{
 		env = ft_getenv("HOME", shell->envp);
-		ft_change_path(env, shell->envp);
+		ft_change_path(env, shell);
 		free(env);
 	}
 	else
-		ft_change_path(node->full_cmd[1], shell->envp);
-	g_status = 0;
+		ft_change_path(node->full_cmd[1], shell);
 	return (1);
+}
+
+void	ft_set_export(t_sh *sh, char *arg)
+{
+	char	*var;
+	char	*value;
+
+	if (ft_strchr(arg, '='))
+	{
+		var = ft_truncate_eq(arg);
+		value = ft_strdup(ft_strchr(arg, '=') + 1);
+		ft_setenv(sh, var, value);
+		ft_safe_free(var);
+		ft_safe_free(value);
+	}
+	else
+		ft_setenv(sh, arg, 0);
 }
 
 int	ft_export(t_node *node, t_sh *sh)
 {
 	int		x;
-	int		y;
-	char	*var;
-	char	*value;
 
 	x = 0;
-	y = 1;
+	g_status = 0;
 	if (!node->full_cmd[1])
 	{
 		while (sh->envp[x])
-			printf("%s\n", sh->envp[x++]);
-		g_status = 0;
+		{
+			ft_putstr_fd(sh->envp[x++], STDOUT_FILENO);
+			ft_putchar_fd('\n', STDOUT_FILENO);
+		}
 		return (1);
 	}
-	while (node->full_cmd[y])
+	x = 1;
+	while (node->full_cmd[x])
 	{
-		if (ft_strchr(node->full_cmd[y], '='))
-		{
-			var = ft_truncate_eq(node->full_cmd[y]);
-			value = ft_strdup(ft_strchr(node->full_cmd[y], '=') + 1);
-			ft_setenv(sh, var, value);
-			ft_safe_free(var);
-			ft_safe_free(value);
-		}
-		else
-			ft_setenv(sh, node->full_cmd[y], 0);
-		y++;
+		ft_set_export(sh, node->full_cmd[x++]);
 	}
 	return (1);
 }
 
-int	ft_unset(t_node *node, t_sh *sh)
+int	ft_remove_unset(char *arg, int x, t_sh *sh)
 {
 	char	*trun_env;
-	int		x;
+	char	**tmp_envp;
 	char	**s1;
 	char	**s2;
-	char	**tmp_sh;
+	int		found;
+
+	found = 0;
+	trun_env = ft_truncate_eq(sh->envp[x]);
+	if (!ft_strncmp(arg, trun_env, \
+	ft_max(ft_strlen(arg), ft_strlen(trun_env))))
+	{
+		s1 = ft_subsplit(sh->envp, 0, x);
+		s2 = ft_subsplit(sh->envp, x + 1, ft_splitlen(sh->envp));
+		tmp_envp = sh->envp;
+		sh->envp = ft_join_split(s1, s2);
+		free_arrarr(tmp_envp);
+		free_arrarr(s1);
+		free_arrarr(s2);
+		found = 1;
+	}
+	ft_safe_free(trun_env);
+	return (found);
+}
+
+int	ft_unset(t_node *node, t_sh *sh)
+{
+	int		x;
 
 	x = 0;
 	if (!node->full_cmd[1])
@@ -174,7 +211,8 @@ int	ft_unset(t_node *node, t_sh *sh)
 	}
 	else if (ft_strchr(node->full_cmd[1], '='))
 	{
-		printf("\033[31munset : %s : invalid parameter name\033\n", node->full_cmd[1]);
+		printf("\033[31munset : %s : invalid parameter name\033\n", \
+		node->full_cmd[1]);
 		g_status = 1;
 		return (1);
 	}
@@ -182,21 +220,8 @@ int	ft_unset(t_node *node, t_sh *sh)
 	{
 		while (sh->envp[x])
 		{
-			trun_env = ft_truncate_eq(sh->envp[x]);
-			if (!ft_strncmp(node->full_cmd[1], trun_env, ft_max(ft_strlen(node->full_cmd[1]), ft_strlen(trun_env))))
-			{
-				s1 = ft_subsplit(sh->envp, 0, x);
-				s2 = ft_subsplit(sh->envp, x + 1, ft_splitlen(sh->envp));
-				tmp_sh = sh->envp;
-				sh->envp = ft_join_split(s1, s2);
-				free_arrarr(tmp_sh);
-				free_arrarr(s1);
-				free_arrarr(s2);
-				ft_safe_free(trun_env);
-				return (1);
-			}
-			ft_safe_free(trun_env);
-			x++;
+			if (ft_remove_unset(node->full_cmd[1], x++, sh))
+				break ;
 		}	
 	}
 	g_status = 0;
@@ -205,8 +230,8 @@ int	ft_unset(t_node *node, t_sh *sh)
 
 int	ft_builtins(t_list *cmd, t_sh *sh, int **fd, int i)
 {
-	int x;
-	int	builtin;
+	int		x;
+	int		builtin;
 	t_node	*node;
 
 	node = (t_node *)(cmd->content);

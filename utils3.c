@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:05:42 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 19:15:17 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/08 16:54:09 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,8 +112,8 @@ void	ft_setenv(t_sh *shell, char *var, char *value)
 				tmp_env = shell->envp[x];
 				shell->envp[x] = join;
 				free(tmp_env);
-				free(trun_env);
 			}
+			free(trun_env);
 			break ;
 		}
 		free(trun_env);
