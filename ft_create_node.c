@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 13:00:19 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/09 17:37:51 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/09 17:47:12 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int	ft_check_fdk_infile(t_node *node, char *infile, int fd_k, int fd)
 		if (node->str_infile)
 			free(node->str_infile);
 		node->str_infile = ft_strdup(infile);
-		return (1);
+		return (-1);
 	}
 	else
 	{
@@ -41,7 +41,7 @@ int	ft_check_fdk_outfile(t_node *node, char *outfile, int fd_k, int fd)
 		if (node->str_outfile)
 			free(node->str_outfile);
 		node->str_outfile = ft_strdup(outfile);
-		return (1);
+		return (-1);
 	}
 	else
 	{
@@ -140,8 +140,6 @@ char	*ft_cmd(char **sub_cmd)
 	}
 	return (cmd);
 }
-
-
 
 char	**ft_full_cmd(char **sub_cmd)
 {
