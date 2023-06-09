@@ -116,28 +116,35 @@ char	**fill_split(char **split, char *s, int strings)
 		When quotes are not closed or when s is NULL it returns a NULL pointer.
 */
 
+int	ft_split_quotes_00(int i)
+{
+	if (i == -1)
+	{
+		g_status = 2;
+		ft_putstr_fd("\033[31;5;107mError : unmatched quotes\n\033[0m", \
+		STDERR_FILENO);
+		return (1);
+	}
+	return (0);
+}
+
 char	**split_quotes(char *s)
 {
 	char	**split;
 	int		strings;
 	int		i;
-	
-	i = 0;
+
+	i = -1;
 	split = 0;
 	if (!s)
 		return (0);
-	while (s[i])
+	while (s[++i])
 	{
 		i = ft_next_index_quote(s, i);
-		if (i == -1)
-		{
-			g_status = 2;
-			ft_putstr_fd("\033[31;5;107mError : unmatched quotes\n\033[0m", STDERR_FILENO);
-			return (0);
-		}
+		if (ft_split_quotes_00(i))
+			return (0);		
 		if (!s[i])
-			break;
-		i++;
+			break ;
 	}
 	strings = count_strings(s);
 	if (strings == 0)

@@ -36,7 +36,7 @@ void	print_node(t_node *node, char **sub_spl)
 {
 	if (!node)
 		return ;
-	 printf("-------------\n");
+	printf("-------------\n");
 	print_arrarr(sub_spl);
 	printf("\033[31mNode cmd : %s\n", node->cmds);
 	printf("\033[32mNode FULL_CMD :\n");

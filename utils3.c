@@ -71,7 +71,8 @@ char	*ft_getenv(char *var, char **envp)
 	while (envp[x])
 	{
 		trun_env = ft_truncate_eq(envp[x]);
-		if (!ft_strncmp(trun_env, var, ft_max(ft_strlen(trun_env), ft_strlen(var))))
+		if (!ft_strncmp(trun_env, var, \
+		ft_max(ft_strlen(trun_env), ft_strlen(var))))
 		{
 			if (ft_strchr(envp[x], '='))
 				env = ft_strdup(ft_strchr((envp[x]), '=') + 1);
@@ -86,14 +87,41 @@ char	*ft_getenv(char *var, char **envp)
 	return (env);
 }
 
+void	ft_setenv_00(char *value, int x, char *var, t_sh *shell)
+{
+	if (value)
+	{
+		if (value)
+		{
+			shell->tmp_join = ft_strjoin(var, "=");
+			shell->join = ft_strjoin(shell->tmp_join, value);
+			free(shell->tmp_join);
+			shell->tmp_env = shell->envp[x];
+			shell->envp[x] = shell->join;
+			free(shell->tmp_env);
+		}
+	}
+	x = x;
+}
+
+void	ft_setenv_01(char *value, char *var, t_sh *shell)
+{
+	if (value)
+	{
+		shell->tmp_join = ft_strjoin(var, "=");
+		shell->join = ft_strjoin(shell->tmp_join, value);
+		free(shell->tmp_join);
+	}
+	else
+		shell->join = var;
+	shell->tmp = shell->envp;
+	shell->envp = ft_add_to_split(shell->envp, shell->join);
+}
+
 void	ft_setenv(t_sh *shell, char *var, char *value)
 {
 	int		x;
 	char	*trun_env;
-	char	*tmp_join;
-	char	*join;
-	char	*tmp_env;
-	char	**tmp;
 
 	x = 0;
 	if (!shell->envp || !var)
@@ -104,15 +132,16 @@ void	ft_setenv(t_sh *shell, char *var, char *value)
 		if (!ft_strncmp(trun_env, var, \
 		ft_max(ft_strlen(trun_env), ft_strlen(var))))
 		{
-			if (value)
+			ft_setenv_00(value, x, var, shell);
+			/* if (value)
 			{
-				tmp_join = ft_strjoin(var, "=");
-				join = ft_strjoin(tmp_join, value);
-				free(tmp_join);
-				tmp_env = shell->envp[x];
-				shell->envp[x] = join;
-				free(tmp_env);
-			}
+				shell->tmp_join = ft_strjoin(var, "=");
+				shell->join = ft_strjoin(shell->tmp_join, value);
+				free(shell->tmp_join);
+				shell->tmp_env = shell->envp[x];
+				shell->envp[x] = shell->join;
+				free(shell->tmp_env);
+			} */
 			free(trun_env);
 			break ;
 		}
@@ -121,54 +150,19 @@ void	ft_setenv(t_sh *shell, char *var, char *value)
 	}
 	if (!shell->envp[x])
 	{
-		if (value)
+		ft_setenv_01(value, var, shell);
+		/* if (value)
 		{
-			tmp_join = ft_strjoin(var, "=");
-			join = ft_strjoin(tmp_join, value);
-			free(tmp_join);
+			shell->tmp_join = ft_strjoin(var, "=");
+			shell->join = ft_strjoin(shell->tmp_join, value);
+			free(shell->tmp_join);
 		}
 		else
-			join = var;
-		tmp = shell->envp;
-		shell->envp = ft_add_to_split(shell->envp, join);
+			shell->join = var;
+		shell->tmp = shell->envp;
+		shell->envp = ft_add_to_split(shell->envp, shell->join); */
 		if (value)
-			free(join);
-		free_arrarr(tmp);
+			free(shell->join);
+		free_arrarr(shell->tmp);
 	}
-}
-
-char	*ft_substitute_string(char *str, char *str_in, int index, int size)
-{
-	char	*tmp;
-	char	*tmp2;
-	char	*join;
-
-	if (!str_in)
-	{
-		tmp = malloc(sizeof(char) * (index + 1));
-		ft_strlcpy(tmp, str, index + 1);
-		tmp2 = ft_strdup(&str[index + size]);
-		join = ft_strjoin(tmp, tmp2);
-		free(tmp);
-		free(tmp2);
-	}
-	else
-	{
-		//c i a o " s t r _ i n  "  \0
-		//0 1 2 3 4 5 6 7 8 9 10 11 12
-		// index = 5
-		// size = 6
-		/*
-			$ P W D
-			0 1 2 3
-			index = 0
-			size = 4
-		*/
-		tmp = (char *) malloc (sizeof(char) * (ft_strlen(str) - size + ft_strlen(str_in) + 1));
-		ft_strlcpy(tmp, str, index + 1);
-		ft_strlcpy(tmp + index, str_in, ft_strlen(str_in) + 1);
-		ft_strlcpy(tmp + index + ft_strlen(str_in), &str[index + size], INT_MAX);
-		join = tmp;
-	}
-	return (join);
 }

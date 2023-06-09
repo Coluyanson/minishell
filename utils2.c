@@ -44,6 +44,21 @@ int	ft_splitlen(char **split)
 	return (i);
 }
 
+void	ft_join_split_00(char **cmd, char **line_spl, char **join)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while (cmd[i])
+		join[j++] = ft_strdup(cmd[i++]);
+	i = 0;
+	while (line_spl[i])
+		join[j++] = ft_strdup(line_spl[i++]);
+	join[j] = 0;
+}
+
 char	**ft_join_split(char **cmd, char **line_spl)
 {
 	char	**join;
@@ -63,16 +78,7 @@ char	**ft_join_split(char **cmd, char **line_spl)
 	while (line_spl[j])
 		j++;
 	join = (char **) malloc (sizeof(char *) * (i + j + 1));
-	i = 0;
-	j = 0;
-	while (cmd[i])
-		join[j++] = ft_strdup(cmd[i++]);
-	i = 0;
-	while (line_spl[i])
-		join[j++] = ft_strdup(line_spl[i++]);
-	join[j] = 0;
-	//free_arrarr(cmd);
-	//free_arrarr(line_spl);
+	ft_join_split_00(cmd, line_spl, join);
 	return (join);
 }
 

@@ -30,6 +30,7 @@
 # include <dirent.h>
 # include <unistd.h>
 # include <signal.h>
+
 typedef struct s_sh
 {
 	char	**final_split;
@@ -38,6 +39,11 @@ typedef struct s_sh
 	pid_t	pid;
 	int		stdin_fd;
 	int		stdout_fd;
+	char	**tmp;
+	char	*tmp_join;
+	char	*tmp_env;
+	char	*join;
+	int		x;
 }t_sh;
 
 typedef struct s_node
@@ -92,7 +98,7 @@ char	**ft_gest_ambiental(char **spl, char **envp);
 
 /*ft_heredoc.c*/
 
-int	ft_heredoc(char *delimiter);
+int		ft_heredoc(char *delimiter);
 
 
 /*expand_vars.c*/
