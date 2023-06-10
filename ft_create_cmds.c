@@ -6,29 +6,13 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 19:25:46 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/09 16:12:15 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/10 20:50:28 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-extern int g_status;
-
-char	*ft_restore_neg(char *s)
-{
-	int	i;
-
-	i = 0;
-	if (!s)
-		return (0);
-	while (s[i])
-	{
-		if (s[i] < 0)
-			s[i] = -s[i];
-		i++;
-	}
-	return (s);
-}
+extern int	g_status;
 
 void	ft_restore_neg_arrarr(char **arrarr)
 {
@@ -39,6 +23,25 @@ void	ft_restore_neg_arrarr(char **arrarr)
 		return ;
 	while (arrarr[x])
 		ft_restore_neg(arrarr[x++]);
+}
+
+t_node	*ft_create_node(char **sub_spl)
+{
+	t_node	*node;
+
+	node = (t_node *) malloc (sizeof(t_node));
+	node->infile = ft_infile(sub_spl, node);
+	if (g_status == 130)
+	{
+		free(node);
+		return (0);
+	}
+	node->outfile = ft_outfile(sub_spl, node);
+	node->full_cmd = ft_full_cmd(sub_spl);
+	ft_restore_neg_arrarr(node->full_cmd);
+	node->cmds = ft_cmd(sub_spl);
+	ft_restore_neg(node->cmds);
+	return (node);
 }
 
 t_list	*ft_new_cmd(char **sub_spl)
@@ -55,19 +58,11 @@ t_list	*ft_new_cmd(char **sub_spl)
 		STDERR_FILENO);
 		return (0);
 	}
-	node = (t_node *) malloc (sizeof(t_node));
-	node->infile = ft_infile(sub_spl, node);
-	if (g_status == 130)
-	{
-		free(node);
-		return (0);
-	}
-	node->outfile = ft_outfile(sub_spl, node);
-	node->full_cmd = ft_full_cmd(sub_spl);
-	ft_restore_neg_arrarr(node->full_cmd);
-	node->cmds = ft_cmd(sub_spl);
-	ft_restore_neg(node->cmds);
-	new = ft_lstnew(node);
+	node = ft_create_node(sub_spl);
+	if (!node)
+		new = 0;
+	else
+		new = ft_lstnew(node);
 	return (new);
 }
 

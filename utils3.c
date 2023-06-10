@@ -6,12 +6,11 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:05:42 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/08 16:54:09 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/10 20:47:53 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
 
 char	*ft_strjoin_null(char *s1, char *s2)
 {
@@ -85,84 +84,4 @@ char	*ft_getenv(char *var, char **envp)
 		x++;
 	}
 	return (env);
-}
-
-void	ft_setenv_00(char *value, int x, char *var, t_sh *shell)
-{
-	if (value)
-	{
-		if (value)
-		{
-			shell->tmp_join = ft_strjoin(var, "=");
-			shell->join = ft_strjoin(shell->tmp_join, value);
-			free(shell->tmp_join);
-			shell->tmp_env = shell->envp[x];
-			shell->envp[x] = shell->join;
-			free(shell->tmp_env);
-		}
-	}
-	x = x;
-}
-
-void	ft_setenv_01(char *value, char *var, t_sh *shell)
-{
-	if (value)
-	{
-		shell->tmp_join = ft_strjoin(var, "=");
-		shell->join = ft_strjoin(shell->tmp_join, value);
-		free(shell->tmp_join);
-	}
-	else
-		shell->join = var;
-	shell->tmp = shell->envp;
-	shell->envp = ft_add_to_split(shell->envp, shell->join);
-}
-
-void	ft_setenv(t_sh *shell, char *var, char *value)
-{
-	int		x;
-	char	*trun_env;
-
-	x = 0;
-	if (!shell->envp || !var)
-		return ;
-	while (shell->envp[x])
-	{
-		trun_env = ft_truncate_eq(shell->envp[x]);
-		if (!ft_strncmp(trun_env, var, \
-		ft_max(ft_strlen(trun_env), ft_strlen(var))))
-		{
-			ft_setenv_00(value, x, var, shell);
-			/* if (value)
-			{
-				shell->tmp_join = ft_strjoin(var, "=");
-				shell->join = ft_strjoin(shell->tmp_join, value);
-				free(shell->tmp_join);
-				shell->tmp_env = shell->envp[x];
-				shell->envp[x] = shell->join;
-				free(shell->tmp_env);
-			} */
-			free(trun_env);
-			break ;
-		}
-		free(trun_env);
-		x++;
-	}
-	if (!shell->envp[x])
-	{
-		ft_setenv_01(value, var, shell);
-		/* if (value)
-		{
-			shell->tmp_join = ft_strjoin(var, "=");
-			shell->join = ft_strjoin(shell->tmp_join, value);
-			free(shell->tmp_join);
-		}
-		else
-			shell->join = var;
-		shell->tmp = shell->envp;
-		shell->envp = ft_add_to_split(shell->envp, shell->join); */
-		if (value)
-			free(shell->join);
-		free_arrarr(shell->tmp);
-	}
 }

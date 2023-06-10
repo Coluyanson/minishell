@@ -6,13 +6,13 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/21 16:23:36 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/10 18:15:52 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/10 20:28:53 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-extern int g_status;
+extern int	g_status;
 
 void	ft_heredoc_00(char *delimiter, int fd)
 {

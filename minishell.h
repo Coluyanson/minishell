@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 18:39:55 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/07 17:48:08 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/10 21:03:24 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,19 +87,46 @@ char	**ft_full_cmd(char **sub_cmd);
 
 int		ft_builtins(t_list *cmd, t_sh *sh, int **fd, int i);
 
+/*ft_builtins_00.c*/
+
+int		ft_cd(t_node *node, t_sh *shell);
+int		ft_env(t_sh *sh, t_node *node);
+int		ft_pwd(void);
+int		ft_echo(t_node *node);
+
+/*ft_builtins_01.c*/
+
+int		ft_export(t_node *node, t_sh *sh);
+
 /* ft_exe.c */
 
-//void	ft_exe(t_list *cmds, t_sh *shell);
 void	ft_exe(t_sh *shell, t_list *cmd);
+
+/*ft_exe_00.c*/
+
+char	*ft_cmd_finder(t_node *node, t_sh *shell);
+
+/*ft_exe_01.c*/
+
+void	ft_prepare_redirection(t_sh *shell, t_list *cmd, int **fd, int i);
+
+/*ft_exe_02.c*/
+
+int		**ft_pipe_array(int n_pipes);
+void	ft_close_array_pipes(int size, int **fd);
 
 /*ft_gest_ambiental.c*/
 
 char	**ft_gest_ambiental(char **spl, char **envp);
 
+/*ft_gest_ambiental_00.c*/
+
+char	*ft_expander_00(int x, char **envp, char *join, char *exp);
+int		ft_next_quote_exp(char *s, int i);
+
 /*ft_heredoc.c*/
 
 int		ft_heredoc(char *delimiter);
-
 
 /*expand_vars.c*/
 
@@ -142,6 +169,11 @@ char	*ft_strjoin_null(char *s1, char *s2);
 char	*ft_substitute_string(char *str, char *str_in, int index, int size);
 char	*ft_getenv(char *var, char **envp);
 
+/*utils4.c*/
+
+int		ft_check_matched_quotes(char *s);
+char	*ft_restore_neg(char *s);
+
 /*utils_print.c*/
 
 void	print_arrarr(char **arr);
@@ -162,6 +194,6 @@ char	**ft_gest_ambiental(char **av, char **envp);
 
 void	ft_gest_sig_bash(void);
 void	ft_sigint(int sig);
-
+void	ft_set_gstatus(int sig);
 
 #endif

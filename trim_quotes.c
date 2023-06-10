@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/07 19:04:53 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 14:32:52 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/10 20:48:10 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,37 +34,43 @@ int	ft_next_index_trim(char *s, int i)
 	return (i);
 }
 
+char	*delete_quotes_00(char *s, char *join, int *jindex)
+{
+	int		k;
+	char	*tmp;
+	int		j;
+
+	j = *jindex;
+	if (in_set(s[j], "\"\'"))
+	{
+		k = ft_next_index_trim(s, j);
+		tmp = malloc(sizeof(char) * (k - j));
+		ft_strlcpy(tmp, &s[j + 1], k - j);
+		join = ft_strjoin_free(join, tmp);
+		*jindex = k + 1;
+	}
+	else
+	{
+		k = j;
+		while (s[k] && !in_set(s[k], "\"\'"))
+			k++;
+		tmp = malloc(sizeof(char) * (k - j + 1));
+		ft_strlcpy(tmp, &s[j], k - j + 1);
+		join = ft_strjoin_free(join, tmp);
+		*jindex = k;
+	}
+	return (join);
+}
+
 char	*delete_quotes(char *s)
 {
 	int		j;
-	int		k;
-	char	*tmp;
 	char	*join;
 
 	j = 0;
-	k = 0;
 	join = 0;
 	while (s[j])
-	{
-		if (in_set(s[j], "\"\'"))
-		{
-			k = ft_next_index_trim(s, j);
-			tmp = malloc(sizeof(char) * (k - j));
-			ft_strlcpy(tmp, &s[j + 1], k - j);
-			join = ft_strjoin_free(join, tmp);
-			j = k + 1;
-		}
-		else
-		{
-			k = j;
-			while (s[k] && !in_set(s[k], "\"\'"))
-				k++;
-			tmp = malloc(sizeof(char) * (k - j + 1));
-			ft_strlcpy(tmp, &s[j], k - j + 1);
-			join = ft_strjoin_free(join, tmp);
-			j = k;
-		}
-	}
+		join = delete_quotes_00(s, join, &j);
 	return (join);
 }
 /*

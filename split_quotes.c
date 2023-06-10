@@ -6,13 +6,13 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/02 18:38:52 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/05 15:53:54 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/10 20:35:41 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-extern int g_status;
+extern int	g_status;
 
 /*
 It finds next index after the first quote. 
@@ -44,8 +44,6 @@ int	ft_next_index_quote(char *s, int i)
 	}
 	return (i);
 }
-
-
 
 /*Nelle parentesi chiuse posso non devo interpretare nulla.
 Mi fermo quando, dopo aver trovato un numero pari di parentesi,
@@ -116,36 +114,14 @@ char	**fill_split(char **split, char *s, int strings)
 		When quotes are not closed or when s is NULL it returns a NULL pointer.
 */
 
-int	ft_split_quotes_00(int i)
-{
-	if (i == -1)
-	{
-		g_status = 2;
-		ft_putstr_fd("\033[31;5;107mError : unmatched quotes\n\033[0m", \
-		STDERR_FILENO);
-		return (1);
-	}
-	return (0);
-}
-
 char	**split_quotes(char *s)
 {
 	char	**split;
 	int		strings;
-	int		i;
 
-	i = -1;
 	split = 0;
-	if (!s)
+	if (!s || ft_check_matched_quotes(s))
 		return (0);
-	while (s[++i])
-	{
-		i = ft_next_index_quote(s, i);
-		if (ft_split_quotes_00(i))
-			return (0);		
-		if (!s[i])
-			break ;
-	}
 	strings = count_strings(s);
 	if (strings == 0)
 		return (0);

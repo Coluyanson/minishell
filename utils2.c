@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/14 21:01:11 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/06 19:28:13 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/10 20:51:33 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,18 +30,6 @@ char	*ft_strjoin_free(char *s1, char *s2)
 	free(s1);
 	free(s2);
 	return (join);
-}
-
-int	ft_splitlen(char **split)
-{
-	int	i;
-
-	i = 0;
-	if (!split)
-		return (0);
-	while (split[i])
-		i++;
-	return (i);
 }
 
 void	ft_join_split_00(char **cmd, char **line_spl, char **join)
