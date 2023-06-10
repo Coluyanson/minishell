@@ -1,5 +1,7 @@
 #include "minishell.h"
+
 extern int g_status;
+
 /*	0) ctrl +D
 	1) ctrl +\
 	2) ctrl +C

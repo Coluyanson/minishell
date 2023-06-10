@@ -14,8 +14,9 @@
 
 extern int g_status;
 
-int	ft_heredoc(char *delimiter)
+void	ft_heredoc_00(char *delimiter, int fd)
 {
+	int		i;
 	char	*inp_heredoc;
 	int		fd;
 
@@ -39,6 +40,16 @@ int	ft_heredoc(char *delimiter)
 		ft_putstr_fd(inp_heredoc, fd);
 		ft_putchar_fd('\n', fd);
 	}
+}
+
+int	ft_heredoc(char *delimiter)
+{
+	int		fd;
+
+	g_status = 0;
+	signal(SIGQUIT, SIG_IGN);
+	fd = open("heredoc", O_CREAT | O_TRUNC | O_WRONLY, S_IRWXU);
+	ft_heredoc_00(delimiter, fd);
 	close(fd);
 	fd = open("heredoc", O_RDONLY);
 	return (fd);

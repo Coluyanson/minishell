@@ -14,98 +14,16 @@
 
 extern int g_status;
 
- char	*ft_sub_dollar(char *av, char *envp, int i, int k)
+char	*ft_dollar_01(char *dol, int i)
 {
-	char	*ex;
-	char	*tmp;
-	char	*tmp2;
-	int		x;
-
-	x = 0;
-	while (envp[x] != '=' && envp[x])
-		x++;
-	tmp = malloc(sizeof(char) * (i + 1));
-	ft_strlcpy(tmp, av, i + 1);
-	ex = ft_strdup(&envp[x + 1]);
-	tmp2 = ft_strjoin(tmp, ex);
-	free(tmp);
-	free(ex);
-	tmp = ft_strdup(&av[k]);
-	ex = ft_strjoin(tmp2, tmp);
-	free(tmp);
-	free(tmp2);
-	free(av);
-	return (ex);
+	if (!dol)
+		return (0);
+	if (!dol[i])
+		return (ft_strdup("$"));
+	return (0);
 }
 
-char	*ft_rm_exp(char *av, int i, int k)
-{
-	char	*tmp;
-	char	*tmp2;
-	char	*join;
-
-	tmp = malloc(sizeof(char) * (i + 1));
-	ft_strlcpy(tmp, av, i + 1);
-	tmp2 = ft_strdup(&av[k]);
-	join = ft_strjoin(tmp, tmp2);
-	free(tmp);
-	free(tmp2);
-	return (join);
-}
-
-char	*ft_dollar1(char **envp, char *to_exp)
-{
-	char	*separator;
-	char	*var;
-	char	*value;
-	char	*itoa;
-	char	*tmp_to_exp;
-	int		i;
-	int		j;
-
-	i = 0;
-	j = 0;
-	separator = "<>\\/|+-.,;:~{}[]()&%%\"^'#@*$= ";
-	while (to_exp[i])
-	{
-		if (to_exp[i] == '$')
-		{
-			if (!ft_strchr(separator, to_exp[i + 1]))
-				j = i + 1;
-			else
-				j = i;
-			while (!ft_strchr(separator, to_exp[j]) && to_exp[j])
-				j++;
-			if (to_exp[i + 1] == '?')
-			{
-				itoa = ft_itoa(g_status);
-				tmp_to_exp = to_exp;
-				to_exp = ft_substitute_string(to_exp, itoa, i, 2);
-				ft_safe_free(tmp_to_exp);
-				free(itoa);
-			}
-			else
-			{
-				var = (char *) malloc (sizeof (char) * (j - i + 1));
-				ft_strlcpy(var, &to_exp[i + 1], (j - i));
-				value = ft_getenv(var, envp);
-				tmp_to_exp = to_exp;
-				to_exp = ft_substitute_string(to_exp, value, i, j - i);
-				ft_safe_free(tmp_to_exp);
-				ft_safe_free(value);
-				ft_safe_free(var);
-			}
-			if (!to_exp[j])
-				break ;
-			i = j + 1;
-		}
-		else
-			i++;
-	}
-	return (to_exp);
-}
-
- char	*ft_dollar(char *dol, char *separator, char **envp, int *index)
+char	*ft_dollar(char *dol, char *separator, char **envp, int *index)
 {
 	int		i;
 	int		j;
@@ -114,10 +32,7 @@ char	*ft_dollar1(char **envp, char *to_exp)
 
 	i = *index;
 	j = 0;
-	if (!dol)
-		return (0);
-	if (!dol[i])
-		return (ft_strdup("$"));
+	ft_dollar_01(dol, i);
 	if (dol[i] == '?')
 	{
 		*index = *index + 1;
@@ -198,12 +113,38 @@ int		ft_next_quote_exp(char *s, int i)
 	return (i);
 }
 
+char	*ft_expnder_00(char *exp, char **envp, int x, char *join)
+{
+	char	*tmp;
+	char	*tmp_join;
+	char	*expanded;
+	int		k;
+
+	k = ft_next_quote_exp(exp, x);
+	if (exp[x] == '\'')
+	{
+		tmp = (char *) malloc (sizeof(char) * (k - x + 2));
+		ft_strlcpy(tmp, &exp[x], (k - x + 2));
+		tmp_join = join;
+		join = ft_strjoin_null(join, tmp);
+	}
+	else
+	{
+		tmp = (char *) malloc (sizeof(char) * (k - x + 2));
+		ft_strlcpy(tmp, &exp[x], (k - x + 2));
+		expanded = ft_expand(envp, tmp);
+		tmp_join = join;
+		join = ft_strjoin_null(join, expanded);
+		ft_safe_free(expanded);
+	}
+	ft_safe_free(tmp);
+	ft_safe_free(tmp_join);
+	return (join);
+}
+
 char	*ft_expander(char *exp, char **envp)
 {
 	char	*join;
-	char	*tmp_join;
-	char	*tmp;
-	char	*expanded;
 	int		x;
 	int		k;
 
@@ -212,26 +153,7 @@ char	*ft_expander(char *exp, char **envp)
 	while (exp[x])
 	{
 		k = ft_next_quote_exp(exp, x);
-		if (exp[x] == '\'')
-		{
-			tmp = (char *) malloc (sizeof(char) * (k - x + 2));
-			ft_strlcpy(tmp, &exp[x], (k - x + 2));
-			tmp_join = join;
-			join = ft_strjoin_null(join, tmp);
-			ft_safe_free(tmp);
-			ft_safe_free(tmp_join);
-		}
-		else
-		{
-			tmp = (char *) malloc (sizeof(char) * (k - x + 2));
-			ft_strlcpy(tmp, &exp[x], (k - x + 2));
-			expanded = ft_expand(envp, tmp);
-			tmp_join = join;
-			join = ft_strjoin_null(join, expanded);
-			ft_safe_free(tmp);
-			ft_safe_free(expanded);
-			ft_safe_free(tmp_join);
-		}
+		join = ft_expnder_00(exp, envp, x, join);
 		x = k + 1;
 		if (!exp[k])
 			break ;
