@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 10:13:45 by vguidoni          #+#    #+#             */
-/*   Updated: 2023/06/06 21:15:59 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/10 18:15:34 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ char	*ft_dollar(char *dol, char *separator, char **envp, int *index)
 		*index = *index + 1;
 		return (ft_itoa(g_status));
 	}
-	else if (in_set(dol[i], separator))
+	else if (in_set(dol[i], separator) || !dol[i])
 		return (ft_strdup("$"));
 	while (dol[i + j] && !in_set(dol[i + j], separator))
 		j++;

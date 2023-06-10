@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/21 16:23:36 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/09 17:42:04 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/10 18:15:52 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,7 @@ extern int g_status;
 
 void	ft_heredoc_00(char *delimiter, int fd)
 {
-	int		i;
 	char	*inp_heredoc;
-	int		fd;
 
 	g_status = 0;
 	signal(SIGQUIT, SIG_IGN);
