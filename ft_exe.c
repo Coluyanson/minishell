@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 19:57:26 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/09 15:07:28 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/10 17:59:21 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ char	*ft_cmd_finder(t_node *node, t_sh *shell)
 void	ft_prepare_redirection(t_sh *shell, t_list *cmd, int **fd, int i)
 {
 	t_node	*node;
-	
+
 	node = (t_node *)cmd->content;
 	if (cmd == *(shell->cmds) && !cmd->next)	//one command
 	{
@@ -112,7 +112,6 @@ void	ft_prepare_redirection(t_sh *shell, t_list *cmd, int **fd, int i)
 			dup2(fd[i - 1][0], node->infile);
 		dup2(shell->stdout_fd, STDOUT_FILENO);
 		dup2(node->outfile, STDOUT_FILENO);
-		
 	}
 	else									// middle command
 	{
@@ -147,101 +146,78 @@ void	ft_close_redirection(t_node *node)
 		close(node->outfile);
 }
 
-void	ft_exe(t_sh *shell, t_list *cmd)
+int	**ft_pipe_array(int n_pipes)
 {
-	pid_t	pid;
-	t_node	*node;
 	int		**fd;
 	int		i;
-	char	*full_cmd;
-	int		status;
-	int 	size;
-	
-	size = ft_lstsize(cmd);
+
 	i = 0;
 	fd = 0;
-	if (!cmd)
-		return ;
-	if (size > 1)
+	if (n_pipes <= 0)
+		return (0);
+	fd = (int **) malloc (sizeof(int *) * (n_pipes));
+	while (i < n_pipes)
 	{
-		fd = (int **) malloc (sizeof(int *) * (size - 1));
-		while (i < size - 1)
+		fd[i] = (int *) malloc (sizeof(int) * 2);
+		if (pipe(fd[i]) == -1)
 		{
-			fd[i] = (int *) malloc (sizeof(int) * 2);
-			if (pipe(fd[i]) == -1)
-			{
-				ft_putstr_fd("\033[33mERROR CREATING PIPE\n\033", STDERR_FILENO);
-				return;
-			}
-			i++;
+			ft_putstr_fd("\033[33mERROR CREATING PIPE\n\033", STDERR_FILENO);
+			return (0);
 		}
-	}
-	i = 0;
-	while (cmd)
-	{
-		node = (t_node *)cmd->content;
-		ft_prepare_redirection(shell, cmd, fd, i);
-		if (node->infile == -1 || node->outfile == -1)
-		{
-			if (node->infile == -1)
-			{
-				ft_putstr_fd("minishell : cannot open file ", STDERR_FILENO);
-				ft_putstr_fd(node->str_infile, STDERR_FILENO);
-				ft_putstr_fd("\n", STDERR_FILENO);
-			}
-			else if (node->outfile == -1)
-			{
-				ft_putstr_fd("minishell : cannot open file ", STDERR_FILENO);
-				ft_putstr_fd(node->str_outfile, STDERR_FILENO);
-				ft_putstr_fd("\n", STDERR_FILENO);
-			}
-			g_status = 1;
-		}
-		else if (!node->cmds && (ft_in(node) || ft_out(node)))
-		{
-		}
-		else
-		{
-			if (!ft_builtins(cmd, shell, fd, i))
-			{
-				full_cmd = ft_cmd_finder(node, shell);
-				/* if (!full_cmd && (!ft_in(node) && !ft_out(node)))
-					{
-						g_status = 2;
-						ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", shell->stdout_fd);
-						break ;
-					} */
-				if (!full_cmd)
-					break ;
-				pid = fork();
-				if (pid == 0)
-				{
-					execve(full_cmd, node->full_cmd, shell->envp);
-					exit(0);
-				}
-				else
-				{
-					signal(SIGINT, ft_set_gstatus);
-					signal(SIGQUIT, SIG_IGN);
-					if (cmd->next)
-						close(fd[i][1]);
-					waitpid(pid, &status, 0);
-					if (g_status == 130)
-					{
-						ft_gest_sig_bash();
-						return ;
-					}
-					if (WIFEXITED(status))
-						g_status = WEXITSTATUS(status);
-					ft_gest_sig_bash();
-					free(full_cmd);
-				}
-			}
-		}
-		ft_close_redirection((t_node *)cmd->content);
-		cmd = cmd->next;
 		i++;
 	}
+	return (fd);
+}
+
+void	ft_bad_fd(t_node *node)
+{
+	if (node->infile == -1)
+	{
+		ft_putstr_fd("minishell : cannot open file ", STDERR_FILENO);
+		ft_putstr_fd(node->str_infile, STDERR_FILENO);
+		ft_putstr_fd("\n", STDERR_FILENO);
+	}
+	else if (node->outfile == -1)
+	{
+		ft_putstr_fd("minishell : cannot open file ", STDERR_FILENO);
+		ft_putstr_fd(node->str_outfile, STDERR_FILENO);
+		ft_putstr_fd("\n", STDERR_FILENO);
+	}
+	g_status = 1;
+}
+
+int	ft_executor(t_list *cmd, t_node *node, t_sh *shell, int *fd)
+{
+	char	*full_cmd;
+	int		status;
+	pid_t	pid;
+
+	full_cmd = ft_cmd_finder(node, shell);
+	if (!full_cmd)
+		return (1);
+	pid = fork();
+	if (pid == 0)
+	{
+		execve(full_cmd, node->full_cmd, shell->envp);
+		exit(0);
+	}
+	free(full_cmd);
+	signal(SIGINT, ft_set_gstatus);
+	signal(SIGQUIT, SIG_IGN);
+	if (cmd->next)
+		close(fd[1]);
+	waitpid(pid, &status, 0);
+	if (g_status == 130)
+		return (130);
+	if (WIFEXITED(status))
+		g_status = WEXITSTATUS(status);
+	return (0);
+}
+
+void	ft_close_array_pipes(int size, int **fd)
+{
+	int		i;
+
 	i = 0;
 	if (size > 1)
 	{
@@ -253,5 +229,56 @@ void	ft_exe(t_sh *shell, t_list *cmd)
 		}
 		free(fd);
 	}
+}
+
+int	ft_action_on_cmd(t_list *cmd, t_sh *shell, int **fd, int i)
+{
+	int		exe;
+	t_node	*node;
+
+	exe = 0;
+	node = (t_node *)(cmd->content);
+	ft_prepare_redirection(shell, cmd, fd, i);
+	if (node->infile == -1 || node->outfile == -1)
+		ft_bad_fd(node);
+	else if (!node->cmds && (ft_in(node) || ft_out(node)))
+	{
+	}
+	else
+	{
+		if (!ft_builtins(cmd, shell, fd, i))
+		{
+			if (fd && cmd->next)
+				exe = ft_executor(cmd, node, shell, fd[i]);
+			else
+				exe = ft_executor(cmd, node, shell, 0);
+			ft_gest_sig_bash();
+		}
+	}
+	ft_close_redirection(node);
+	return (exe);
+}
+
+void	ft_exe(t_sh *shell, t_list *cmd)
+{
+	int		i;
+	int		**fd;
+	int		exe;
+
+	i = 0;
+	if (!cmd)
+		return ;
+	fd = ft_pipe_array(ft_lstsize(*(shell->cmds)) - 1);
+	while (cmd)
+	{
+		exe = ft_action_on_cmd(cmd, shell, fd, i);
+		if (exe == 130)
+			return ;
+		else if (exe == 1)
+			break ;
+		cmd = cmd->next;
+		i++;
+	}
+	ft_close_array_pipes(ft_lstsize(*(shell->cmds)), fd);
 	ft_reset_redirection(shell);
 }
