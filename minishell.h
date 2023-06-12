@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 18:39:55 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/10 21:03:24 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/11 17:00:51 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ char	**ft_subsplit(char **split, int x, int y);
 char	*ft_truncate_eq(char *str);
 void	ft_setenv(t_sh *shell, char *var, char *value);
 char	*ft_strjoin_null(char *s1, char *s2);
-char	*ft_substitute_string(char *str, char *str_in, int index, int size);
+void	ft_quit_shell(t_sh *shell);
 char	*ft_getenv(char *var, char **envp);
 
 /*utils4.c*/

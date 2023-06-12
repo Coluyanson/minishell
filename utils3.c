@@ -6,11 +6,17 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:05:42 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/10 20:47:53 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/12 11:46:17 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+void	ft_quit_shell(t_sh *shell)
+{
+	ft_free_shell(shell);
+	exit(-1);
+}
 
 char	*ft_strjoin_null(char *s1, char *s2)
 {

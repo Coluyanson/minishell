@@ -6,7 +6,7 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 19:57:26 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/10 21:04:14 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/11 17:00:46 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,8 @@ int	ft_executor(t_list *cmd, t_node *node, t_sh *shell, int *fd)
 	if (pid == 0)
 	{
 		execve(full_cmd, node->full_cmd, shell->envp);
-		exit(0);
+		free(full_cmd);
+		ft_quit_shell(shell);
 	}
 	free(full_cmd);
 	signal(SIGINT, ft_set_gstatus);

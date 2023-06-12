@@ -6,11 +6,59 @@
 /*   By: dcolucci <dcolucci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/02 19:08:44 by dcolucci          #+#    #+#             */
-/*   Updated: 2023/06/10 21:41:54 by dcolucci         ###   ########.fr       */
+/*   Updated: 2023/06/12 13:58:35 by dcolucci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+//file check_leaks.sh
+
+/*
+	#!/bin/bash
+
+	valgrind --leak-check=full --show-leak-kinds=all 
+	--suppressions=./readline.supp ./minishell
+*/
+
+//file readline.supp
+
+/*
+{  
+   readline
+   Memcheck:Leak
+   ...
+   ...
+   fun:readline
+   fun:main
+}
+
+{
+   readline
+   Memcheck:Leak
+   ...
+   ...
+   fun:rl_initialize
+   fun:readline
+}
+
+{
+   readline
+   Memcheck:Leak
+   ...
+   ...
+   fun:add_history
+}
+
+{
+   readline
+   Memcheck:Leak
+   ...
+   ...
+   fun:readline_internal_teardown
+   fun:readline
+}
+*/
 
 int	g_status;
 
